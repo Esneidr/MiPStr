@@ -26,29 +26,25 @@ mora = [60, 2.0, 3]
 distancia_manzana = math.sqrt(
     (fruta_usuario[0] - manzana[0])**2 +
     (fruta_usuario[1] - manzana[1])**2 +
-    (fruta_usuario[2] - manzana[2])**2 +
-    (fruta_usuario[3] - manzana[3])**2
+    (fruta_usuario[2] - manzana[2])**2 
 )
 
 distancia_banano = math.sqrt(
     (fruta_usuario[0] - banano[0])**2 +
     (fruta_usuario[1] - banano[1])**2 +
-    (fruta_usuario[2] - banano[2])**2 +
-    (fruta_usuario[3] - banano[3])**2
+    (fruta_usuario[2] - banano[2])**2 
 )
 
 distancia_naranja = math.sqrt(
     (fruta_usuario[0] - naranja[0])**2 +
     (fruta_usuario[1] - naranja[1])**2 +
-    (fruta_usuario[2] - naranja[2])**2 +
-    (fruta_usuario[3] - naranja[3])**2 
+    (fruta_usuario[2] - naranja[2])**2 
 )
 
 distancia_mora = math.sqrt(
     (fruta_usuario[0] - mora[0])**2 +
     (fruta_usuario[1] - mora[1])**2 +
-    (fruta_usuario[2] - mora[2])**2 +
-    (fruta_usuario[3] - mora[3])**2 
+    (fruta_usuario[2] - mora[2])**2 
 )
 
 # Mostramos las distancias
