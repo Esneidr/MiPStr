@@ -40,7 +40,7 @@ def f2(x, y):
 
 def gradiente_f2(x, y):
     """Gradiente de f2: vector de derivadas parciales [df/dx, df/dy]."""
-    return np.array([2 * x - 6, 2 * y + 4 ])
+    return np.array([2 * (x - 3), 2 * (y + 2)])
 
 
 def descenso_gradiente(grad_func, punto_inicial, tasa_aprendizaje, iteraciones):
