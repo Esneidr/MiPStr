@@ -35,7 +35,7 @@ práctico del notebook de Cálculo Aplicado.
 
 def f2(x, y):
     """Función objetivo. Por defecto: un 'tazón' con mínimo en (0, 0)."""
-    return x ** 2 + y ** 2
+    return (x - 3) ** 2 + (y + 2) ** 2
 
 
 def gradiente_f2(x, y):
