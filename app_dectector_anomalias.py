@@ -108,7 +108,7 @@ with tab2:
     ax2.plot(n_valores, n_valores * np.log2(np.maximum(n_valores, 2)), label="O(n log n)")
     ax2.plot(n_valores, n_valores ** 2, label="O(n²) — cuadrática")
     ax2.plot(n_valores, n_valores ** 3, label="O(n³) — cubica")
-    y_factorial = np.array([float(np.math.factorial(x)) for x in n_valores])
+    y_factorial = np.array([float(__import__('math').factorial(x)) for x in n_valores])
     ax2.plot(n_valores, y_factorial, label="O(n!) — factorial", linestyle="-.", color="crimson")
     ax2.set_ylim(0, (n_valores[-1] ** 3) * 1.5)
     ax2.set_xlabel("Tamaño de los datos (n)")
