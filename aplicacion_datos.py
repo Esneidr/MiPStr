@@ -20,8 +20,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # Coordenadas por defecto (Institución Universitaria Pascual Bravo)
 # Se usan solo si la API no trae la latitud/longitud de la estación.
 # ------------------------------------------------------------------
-LAT_DEFECTO = 6.2766
-LON_DEFECTO = -75.5901
+LAT_DEFECTO = 6.0178
+LON_DEFECTO = -75.4819
 
 API_BASE_URL = "https://marco.cornare.gov.co/api/v1/estaciones"
 
