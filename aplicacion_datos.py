@@ -202,46 +202,39 @@ if consultar:
         # ==================================================================
         # PESTAÑA 2: GEOLOCALIZACIÓN
         # ==================================================================
-        with tab_mapa:
-            st.subheader("📍 Ubicación Geográfica de la Estación")
-            
-            col_map1, col_map2 = st.columns([2, 1])
+        # ==================================================================
+# PESTAÑA 2: GEOLOCALIZACIÓN (Opción 1: Nivel Nativo Streamlit)
+# ==================================================================
+with tab_mapa:
+    st.subheader("📍 Ubicación Geográfica de la Estación")
 
-            with col_map1:
-                map_df = pd.DataFrame({
-                    "lat": [lat],
-                    "lon": [lon],
-                    "nombre": [f"Estación {CODIGO_ESTACION}: {NOMBRE_ESTACION}"]
-                })
-                
-                # Mapa interactivo con la nueva función px.scatter_map
-                fig_mapa = px.scatter_map(
-                    map_df,
-                    lat="lat",
-                    lon="lon",
-                    hover_name="nombre",
-                    zoom=13,
-                    height=450
-                )
-                fig_mapa.update_traces(marker=dict(size=15, color="red"))
-                fig_mapa.update_layout(map_style="open-street-map")
-                fig_mapa.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-                
-                st.plotly_chart(fig_mapa, use_container_width=True)
+    col_map1, col_map2 = st.columns([2, 1])
 
-            with col_map2:
-                st.info("ℹ️ **Información Territorial**")
-                st.write(f"- **Municipio:** El Retiro")
-                st.write(f"- **Fuente Hídrica:** Quebrada La Agudelo")
-                st.write(f"- **Autoridad Ambiental:** CORNARE")
-                st.write(f"- **Latitud:** `{lat}`")
-                st.write(f"- **Longitud:** `{lon}`")
+    with col_map1:
+        map_df = pd.DataFrame(
+            {
+                "lat": [lat],
+                "lon": [lon],
+            }
+        )
 
-                if not coords_reales:
-                    st.warning("📌 *Nota: La API no devolvió coordenadas exactas, se muestran las coordenadas de referencia del municipio.*")
-                else:
-                    st.success("📍 Coordenadas confirmadas por el servidor de CORNARE.")
+        # Mapa nativo de Streamlit
+        st.map(map_df, zoom=13, use_container_width=True)
 
+    with col_map2:
+        st.info("ℹ️ **Información Territorial**")
+        st.write(f"- **Municipio:** El Retiro")
+        st.write(f"- **Fuente Hídrica:** Quebrada La Agudelo")
+        st.write(f"- **Autoridad Ambiental:** CORNARE")
+        st.write(f"- **Latitud:** `{lat}`")
+        st.write(f"- **Longitud:** `{lon}`")
+
+        if not coords_reales:
+            st.warning(
+                "📌 *Nota: La API no devolvió coordenadas exactas, se muestran las coordenadas de referencia del municipio.*"
+            )
+        else:
+            st.success("📍 Coordenadas confirmadas por el servidor de CORNARE.")
         # ==================================================================
         # PESTAÑA 3: OTROS GRÁFICOS Y ANÁLISIS
         # ==================================================================
