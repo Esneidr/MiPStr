@@ -1,7 +1,8 @@
 """
-App básica de Streamlit — Nivel de ríos/quebradas (CORNARE / MARCO)
+App Didáctica de Streamlit — Nivel de ríos/quebradas (CORNARE / MARCO)
 --------------------------------------------------------------------
 Para correrla:
+    pip install streamlit pandas requests numpy plotly
     streamlit run app_nivel_cornare.py
 """
 
@@ -9,70 +10,71 @@ import requests
 import pandas as pd
 import numpy as np
 import streamlit as st
+import plotly.express as px
+import plotly.graph_objects as go
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # ------------------------------------------------------------------
-# Datos fijos del estudiante y la estación
+# Configuración y Constantes
 # ------------------------------------------------------------------
 NOMBRE_ESTUDIANTE = "Esneider Cordoba"
 CODIGO_ESTACION = "14"
+NOMBRE_ESTACION = "El Retiro - Quebrada La Agudelo"
 
-# ------------------------------------------------------------------
-# Coordenadas por defecto (Institución Universitaria Pascual Bravo)
-# Se usan solo si la API no trae la latitud/longitud de la estación.
-# ------------------------------------------------------------------
-LAT_DEFECTO = 6.0523
-LON_DEFECTO = -75.5117
+# Coordenadas por defecto (Ubicación real aproximada de El Retiro, Antioquia)
+LAT_DEFECTO = 6.0583
+LON_DEFECTO = -75.4267
 
 API_BASE_URL = "https://marco.cornare.gov.co/api/v1/estaciones"
-
 LLAVE_FECHA = "level_date"
 LLAVE_VALOR = "level"
 CANDIDATOS_LAT = ["lat", "latitude", "latitud"]
 CANDIDATOS_LON = ["lng", "lon", "longitude", "longitud"]
 
-st.set_page_config(page_title="CORNARE - El Retiro, Quebrada La Agudelo", page_icon="🌊", layout="wide")
-
+st.set_page_config(
+    page_title=f"Monitoreo {NOMBRE_ESTACION}",
+    page_icon="🌊",
+    layout="wide"
+)
 
 # ------------------------------------------------------------------
-# Funciones de consulta
+# Funciones de Lógica y API
 # ------------------------------------------------------------------
-def obtener_serie_nivel(codigo_estacion, desde, hasta, calidad=1, timeout=30):
+@st.cache_data(ttl=600)
+def consultar_api_cornare(codigo_estacion, desde, hasta, calidad=1):
     url = f"{API_BASE_URL}/{codigo_estacion}/nivel"
     params = {"desde": desde, "hasta": hasta, "calidad": calidad}
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "User-Agent": "Mozilla/5.0",
         "Accept": "application/json, text/plain, */*",
     }
     try:
-        resp = requests.get(url, params=params, headers=headers, timeout=timeout, verify=False)
+        resp = requests.get(url, params=params, headers=headers, timeout=30, verify=False)
         if resp.status_code == 200:
-            return resp.json(), None
-        return None, f"HTTP {resp.status_code}"
-    except requests.exceptions.RequestException as e:
-        return None, f"Error de red: {e}"
-
-
-def obtener_todas_las_paginas(datos_json, timeout=30):
-    registros = list(datos_json.get("values", []))
-    siguiente_url = datos_json.get("next")
-    while siguiente_url:
-        try:
-            resp = requests.get(siguiente_url, timeout=timeout, verify=False)
-        except requests.exceptions.RequestException:
-            break
-        if resp.status_code != 200:
-            break
-        pagina = resp.json()
-        registros.extend(pagina.get("values", []))
-        siguiente_url = pagina.get("next")
-    return registros
-
+            datos_json = resp.json()
+            registros = list(datos_json.get("values", []))
+            siguiente_url = datos_json.get("next")
+            
+            # Paginación
+            while siguiente_url:
+                try:
+                    r_next = requests.get(siguiente_url, timeout=30, verify=False)
+                    if r_next.status_code == 200:
+                        p_json = r_next.json()
+                        registros.extend(p_json.get("values", []))
+                        siguiente_url = p_json.get("next")
+                    else:
+                        break
+                except Exception:
+                    break
+            return registros, datos_json, None
+        return None, None, f"Error HTTP {resp.status_code}"
+    except Exception as e:
+        return None, None, f"Error de conexión: {e}"
 
 def detectar_coordenadas(datos_json):
-    """Busca lat/lon en las llaves raíz de la respuesta. Si no las encuentra, usa el valor por defecto."""
     if not isinstance(datos_json, dict):
         return LAT_DEFECTO, LON_DEFECTO, False
 
@@ -86,9 +88,7 @@ def detectar_coordenadas(datos_json):
             pass
     return LAT_DEFECTO, LON_DEFECTO, False
 
-
 def calcular_indice_calidad(df):
-    """Índice simple (0-100) combinando completitud de la serie y proporción de outliers."""
     if df.empty or len(df) < 2:
         return 0.0, 0, 0
 
@@ -96,9 +96,9 @@ def calcular_indice_calidad(df):
     frecuencia_tipica = df["fecha"].diff().dropna().mode()
     if len(frecuencia_tipica) == 0:
         return 0.0, 0, 0
-    frecuencia_tipica = frecuencia_tipica[0]
+    freq = frecuencia_tipica[0]
 
-    rango_completo = pd.date_range(start=df_idx.index.min(), end=df_idx.index.max(), freq=frecuencia_tipica)
+    rango_completo = pd.date_range(start=df_idx.index.min(), end=df_idx.index.max(), freq=freq)
     esperados = len(rango_completo)
     huecos = esperados - len(df_idx)
     completitud = max(0.0, 1 - (huecos / esperados)) if esperados > 0 else 0.0
@@ -112,71 +112,237 @@ def calcular_indice_calidad(df):
     indice = (completitud * 0.7 + (1 - proporcion_outliers) * 0.3) * 100
     return round(indice, 1), int(huecos), int(es_outlier.sum())
 
+# ------------------------------------------------------------------
+# Interfaz de Usuario (Sidebar)
+# ------------------------------------------------------------------
+st.sidebar.image("https://www.cornare.gov.co/wp-content/uploads/2020/05/logo-cornare.png", use_container_width=True)
+st.sidebar.title("🎛️ Filtros de Consulta")
+
+fecha_desde = st.sidebar.date_input("Fecha Inicio", pd.to_datetime("2026-08-23")).strftime("%Y-%m-%d")
+fecha_hasta = st.sidebar.date_input("Fecha Fin", pd.to_datetime("2026-08-30")).strftime("%Y-%m-%d")
+calidad = st.sidebar.selectbox("Filtro de Datos", [1, 0], format_func=lambda x: "Solo Validados (Recomendado)" if x == 1 else "Todos los Datos", index=0)
+
+consultar = st.sidebar.button("🔍 Consultar Estación", type="primary", use_container_width=True)
+
+st.sidebar.markdown("---")
+st.sidebar.caption(f"👨‍🎓 **Desarrollado por:** {NOMBRE_ESTUDIANTE}")
+st.sidebar.caption(f"📍 **Estación:** {CODIGO_ESTACION} - {NOMBRE_ESTACION}")
 
 # ------------------------------------------------------------------
-# Sidebar — parámetros de la consulta modificables
+# Encabezado Principal
 # ------------------------------------------------------------------
-st.sidebar.header("Parámetros de tu consulta")
-fecha_desde = st.sidebar.date_input("Desde", pd.to_datetime("2026-08-23")).strftime("%Y-%m-%d")
-fecha_hasta = st.sidebar.date_input("Hasta", pd.to_datetime("2026-08-30")).strftime("%Y-%m-%d")
-calidad = st.sidebar.selectbox("Calidad", [1, 0], index=0, help="1 = solo datos validados")
-consultar = st.sidebar.button("🔍 Consultar", type="primary")
+st.title("🌊 Sistema de Monitoreo de Niveles de Agua")
+st.markdown(f"**Estación {CODIGO_ESTACION}:** {NOMBRE_ESTACION} | *Fuente de datos: CORNARE (MARCO)*")
 
-st.title("🌊 Estación El Retiro, Quebrada La Agudelo — CORNARE")
-st.caption(f"Hecho por: **{NOMBRE_ESTUDIANTE}** · Estación: **{CODIGO_ESTACION}**")
-
-# ------------------------------------------------------------------
-# Consulta y procesamiento
-# ------------------------------------------------------------------
 if consultar:
-    with st.spinner("Consultando la API..."):
-        datos_crudos, error = obtener_serie_nivel(CODIGO_ESTACION, fecha_desde, fecha_hasta, calidad)
+    with st.spinner("Cargando y analizando información..."):
+        registros, datos_crudos, error = consultar_api_cornare(CODIGO_ESTACION, fecha_desde, fecha_hasta, calidad)
 
     if error:
-        st.error(f"❌ {error}")
+        st.error(f"❌ Ocurrió un error al consultar la API: {error}")
+    elif not registros:
+        st.warning("⚠️ No se encontraron lecturas para el rango de fechas seleccionado. Por favor prueba con otras fechas.")
     else:
-        registros = obtener_todas_las_paginas(datos_crudos)
+        # Preprocesamiento de datos
+        df = pd.DataFrame(registros)
+        df = df.rename(columns={LLAVE_FECHA: "fecha", LLAVE_VALOR: "nivel"})
+        df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+        df["nivel"] = pd.to_numeric(df["nivel"], errors="coerce")
+        df = df.dropna(subset=["fecha", "nivel"]).sort_values("fecha").reset_index(drop=True)
 
-        if not registros:
-            st.warning("No hay registros para esta estación y rango de fechas. Prueba otro rango.")
-        else:
-            df = pd.DataFrame(registros)
-            df = df.rename(columns={LLAVE_FECHA: "fecha", LLAVE_VALOR: "nivel"})
-            df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
-            df["nivel"] = pd.to_numeric(df["nivel"], errors="coerce")
-            df = df.dropna(subset=["fecha", "nivel"]).sort_values("fecha").reset_index(drop=True)
+        lat, lon, coords_reales = detectar_coordenadas(datos_crudos)
+        indice_calidad, huecos, n_outliers = calcular_indice_calidad(df)
 
-            lat, lon, coords_reales = detectar_coordenadas(datos_crudos)
-            indice_calidad, huecos, n_outliers = calcular_indice_calidad(df)
+        # ------------------------------------------------------------------
+        # Estructura de Pestañas (Tabs)
+        # ------------------------------------------------------------------
+        tab_resumen, tab_mapa, tab_graficos, tab_calidad = st.tabs([
+            "📊 Dashboard & Diagnóstico", 
+            "🗺️ Geolocalización", 
+            "📈 Análisis Gráfico", 
+            "🔬 Calidad de Datos & Descarga"
+        ])
 
-            # --- Métricas principales ---
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("Lecturas", len(df))
-            col2.metric("Nivel promedio", f"{df['nivel'].mean():.2f}")
-            col3.metric("Índice de calidad", f"{indice_calidad} / 100")
-            col4.metric("Outliers detectados", n_outliers)
+        # ==================================================================
+        # PESTAÑA 1: RESUMEN Y DIAGNÓSTICO
+        # ==================================================================
+        with tab_resumen:
+            st.subheader("💡 Diagnóstico Rápido de la Quebrada")
+            st.markdown("Esta sección resume las métricas clave para entender el comportamiento del caudal.")
 
-            # --- Gráfico de la serie ---
-            st.subheader("Serie de nivel")
-            st.line_chart(df.set_index("fecha")["nivel"])
+            col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+            
+            nivel_prom = df["nivel"].mean()
+            nivel_max = df["nivel"].max()
+            nivel_min = df["nivel"].min()
+            
+            col_m1.metric("📏 Nivel Promedio", f"{nivel_prom:.2f} m", help="Promedio de la altura del agua en el periodo.")
+            col_m2.metric("🔺 Nivel Máximo", f"{nivel_max:.2f} m", help="Punto más alto alcanzado por la corriente.")
+            col_m3.metric("🔻 Nivel Mínimo", f"{nivel_min:.2f} m", help="Punto más bajo registrado.")
+            col_m4.metric("🔢 Total Lecturas", f"{len(df)}", help="Cantidad de datos tomados por el sensor.")
 
-            # --- Mapa de la estación ---
-            st.subheader("Ubicación de la estación")
-            if not coords_reales:
-                st.caption("La API no trajo latitud/longitud de la estación — se muestra el punto de partida (Pascual Bravo).")
-            st.map(pd.DataFrame({"lat": [lat], "lon": [lon]}), zoom=10)
+            st.markdown("---")
 
-            # --- Detalle de calidad ---
-            with st.expander("Detalle del índice de calidad"):
-                st.write(f"- Huecos de reporte detectados: **{huecos}**")
-                st.write(f"- Outliers (IQR + nivel negativo): **{n_outliers}** de {len(df)} lecturas")
-                st.write("El índice combina completitud de la serie (70%) y proporción de datos sin outliers (30%).")
+            # Alerta visual según comportamiento
+            st.subheader("🚨 Estado del Cauce")
+            if nivel_max > (nivel_prom * 1.8):
+                st.error("⚠️ **Atención:** Se detectaron crecientes o picos significativos de agua en el periodo analizado.")
+            else:
+                st.success("✅ **Comportamiento Normal:** El flujo de agua se ha mantenido estable dentro de los parámetros habituales.")
 
-            # --- Tabla y descarga ---
-            with st.expander("Ver datos crudos"):
-                st.dataframe(df, use_container_width=True)
+            # Gráfico de Línea Temporal Dinámico con Plotly
+            st.subheader("📉 Evolución del Nivel en el Tiempo")
+            
+            fig_linea = px.line(
+                df, x="fecha", y="nivel", 
+                labels={"fecha": "Fecha y Hora", "nivel": "Nivel de Agua (Metros)"},
+                title="Histórico Temporal del Nivel de la Quebrada",
+                template="plotly_white"
+            )
+            # Agregar línea horizontal del promedio
+            fig_linea.add_hline(y=nivel_prom, line_dash="dash", line_color="orange", annotation_text="Promedio")
+            fig_linea.update_traces(line_color="#0B5ED7", line_width=2)
+            st.plotly_chart(fig_linea, use_container_width=True)
+
+        # ==================================================================
+        # PESTAÑA 2: GEOLOCALIZACIÓN
+        # ==================================================================
+        with tab_mapa:
+            st.subheader("📍 Ubicación Geográfica de la Estación")
+            
+            col_map1, col_map2 = st.columns([2, 1])
+
+            with col_map1:
+                # Datos para el mapa
+                map_df = pd.DataFrame({
+                    "lat": [lat],
+                    "lon": [lon],
+                    "nombre": [f"Estación {CODIGO_ESTACION}: {NOMBRE_ESTACION}"]
+                })
+                
+                # Mapa interactivo con Plotly Scattermapbox
+                fig_mapa = px.scatter_mapbox(
+                    map_df,
+                    lat="lat",
+                    lon="lon",
+                    hover_name="nombre",
+                    zoom=13,
+                    height=450
+                )
+                fig_mapa.update_traces(marker=dict(size=15, color="red"))
+                fig_mapa.update_layout(mapbox_style="open-street-map")
+                fig_mapa.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+                
+                st.plotly_chart(fig_mapa, use_container_width=True)
+
+            with col_map2:
+                st.info("ℹ️ **Información Territorial**")
+                st.write(f"- **Municipio:** El Retiro")
+                st.write(f"- **Fuente Hídrica:** Quebrada La Agudelo")
+                st.write(f"- **Autoridad Ambiental:** CORNARE")
+                st.write(f"- **Latitud:** `{lat}`")
+                st.write(f"- **Longitud:** `{lon}`")
+
+                if not coords_reales:
+                    st.warning("📌 *Nota: La API no devolvió coordenadas exactas, se muestran las coordenadas de referencia del municipio.*")
+                else:
+                    st.success("📍 Coordenadas confirmadas por el servidor de CORNARE.")
+
+        # ==================================================================
+        # PESTAÑA 3: OTROS GRÁFICOS Y ANÁLISIS
+        # ==================================================================
+        with tab_graficos:
+            st.subheader("📊 Análisis Estadístico y Comportamiento")
+            st.write("Gráficos adicionales para facilitar la interpretación de patrones en el comportamiento del agua.")
+
+            col_g1, col_g2 = st.columns(2)
+
+            with col_g1:
+                st.markdown("#### 1. Distribución de Niveles (Histograma)")
+                st.caption("Muestra con qué frecuencia el agua alcanza ciertos niveles.")
+                fig_hist = px.histogram(
+                    df, x="nivel", nbins=20, 
+                    color_discrete_sequence=["#17A2B8"],
+                    labels={"nivel": "Nivel (m)", "count": "Frecuencia de Lecturas"}
+                )
+                fig_hist.update_layout(template="plotly_white")
+                st.plotly_chart(fig_hist, use_container_width=True)
+
+            with col_g2:
+                st.markdown("#### 2. Diagrama de Caja (Outliers y Rango)")
+                st.caption("Visualiza la variabilidad de los datos y valores atípicos.")
+                fig_box = px.box(
+                    df, y="nivel", 
+                    points="all",
+                    color_discrete_sequence=["#6C757D"],
+                    labels={"nivel": "Nivel (m)"}
+                )
+                fig_box.update_layout(template="plotly_white")
+                st.plotly_chart(fig_box, use_container_width=True)
+
+            st.markdown("---")
+            st.markdown("#### 3. Variación del Nivel por Hora del Día")
+            st.caption("Permite identificar si hay patrones u horarios fijos de subida del nivel.")
+            
+            df["hora"] = df["fecha"].dt.hour
+            df_hora = df.groupby("hora")["nivel"].mean().reset_index()
+
+            fig_hora = px.bar(
+                df_hora, x="hora", y="nivel",
+                labels={"hora": "Hora del Día (0-23)", "nivel": "Nivel Promedio (m)"},
+                color_discrete_sequence=["#20C997"]
+            )
+            fig_hora.update_layout(template="plotly_white")
+            st.plotly_chart(fig_hora, use_container_width=True)
+
+        # ==================================================================
+        # PESTAÑA 4: CALIDAD DE DATOS Y DESCARGA
+        # ==================================================================
+        with tab_calidad:
+            st.subheader("🔬 Control de Calidad del Sensor")
+            
+            c_cal1, c_cal2 = st.columns(2)
+            
+            with c_cal1:
+                st.metric("🎯 Índice de Calidad", f"{indice_calidad} / 100")
+                st.progress(int(indice_calidad))
+            
+            with c_cal2:
+                st.write(f"- **Huecos de reporte (Faltantes):** {huecos} registros")
+                st.write(f"- **Outliers (Anomalías detectadas):** {n_outliers} lecturas")
+
+            st.info("""
+            **¿Cómo se calcula el índice de calidad?**
+            Combina dos factores clave:
+            1. **Completitud de la serie (70%):** Verifica si el sensor envió datos de forma continua sin perder conexión.
+            2. **Ausencia de Anormalidades (30%):** Detecta si hay valores fuera de rango razonable mediante el rango intercuartílico (IQR) o valores negativos.
+            """)
+
+            st.markdown("---")
+            st.subheader("💾 Tabla de Datos y Descarga")
+            
+            st.dataframe(df[["fecha", "nivel"]], use_container_width=True)
 
             csv = df.to_csv(index=False).encode("utf-8")
-            st.download_button("⬇️ Descargar CSV", csv, file_name=f"nivel_estacion_{CODIGO_ESTACION}.csv", mime="text/csv")
+            st.download_button(
+                label="⬇️ Descargar Serie de Datos (CSV)",
+                data=csv,
+                file_name=f"nivel_estacion_{CODIGO_ESTACION}.csv",
+                mime="text/csv",
+                type="primary"
+            )
+
 else:
-    st.info("Ajusta los parámetros en el sidebar y presiona **Consultar**.")
+    # Mensaje inicial cuando se entra a la aplicación sin hacer clic en Consultar
+    st.info("👈 Para iniciar, selecciona el rango de fechas en el panel lateral y haz clic en **Consultar Estación**.")
+    
+    st.markdown("""
+    ### ℹ️ Acerca de esta herramienta
+    Esta aplicación permite consultar los datos hidrológicos de la red de monitoreo **MARCO** de la **CORNARE**, específicamente para la quebrada **La Agudelo** en el municipio de **El Retiro**.
+    
+    **Características principales:**
+    - 📊 **Visualización clara:** Gráficos sencillos y métricas clave.
+    - 🗺️ **Mapa Interactivo:** Ubicación precisa de la estación.
+    - 📈 **Análisis Estadístico:** Análisis por hora y frecuencias.
+    - 🔬 **Validación de Datos:** Índice de completitud y calidad del sensor.
+    """)
