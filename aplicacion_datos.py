@@ -270,7 +270,7 @@ else:
         st.plotly_chart(fig_linea, use_container_width=True)
 
     # ==================================================================
-    # PESTAÑA 2: GEOLOCALIZACIÓN
+    # PESTAÑA 2: GEOLOCALIZACIÓN E IMÁGENES
     # ==================================================================
     with tab_mapa:
         st.subheader("📍 Ubicación Geográfica de la Estación")
@@ -279,8 +279,6 @@ else:
 
         with col_map1:
             map_df = pd.DataFrame({"lat": [lat], "lon": [lon]})
-
-            # Renderizado directo mediante mapa nativo de Streamlit
             st.map(map_df, zoom=13, use_container_width=True)
 
         with col_map2:
@@ -296,9 +294,26 @@ else:
                     "📌 *Nota: La API no devolvió coordenadas exactas, se muestran las coordenadas de referencia del municipio.*"
                 )
             else:
-                st.success(
-                    "📍 Coordenadas confirmadas por el servidor de CORNARE."
-                )
+                st.success("📍 Coordenadas confirmadas por el servidor de CORNARE.")
+
+        st.markdown("---")
+        st.subheader("🖼️ Registro Fotográfico del Cauce y Estación")
+
+        col_img1, col_img2 = st.columns(2)
+
+        with col_img1:
+            st.image(
+                "imagenes/rioUno.jpg",
+                caption="Vista Panorámica del Cauce - Quebrada La Agudelo",
+                use_column_width=True,
+            )
+
+        with col_img2:
+            st.image(
+                "imagenes/rioDos.jpg",
+                caption="Estación de Monitoreo - El Retiro",
+                use_column_width=True,
+            )
 
     # ==================================================================
     # PESTAÑA 3: OTROS GRÁFICOS Y ANÁLISIS
