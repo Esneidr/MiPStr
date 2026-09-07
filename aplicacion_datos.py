@@ -7,6 +7,7 @@ Para correr localmente:
 """
 
 from datetime import datetime, timedelta
+import os
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -301,19 +302,29 @@ else:
 
         col_img1, col_img2 = st.columns(2)
 
+        # Rutas actualizadas a la extensión .png detectada en el repositorio
+        img_path1 = "imagenes/rioUno.png"
+        img_path2 = "imagenes/rioDos.png"
+
         with col_img1:
-            st.image(
-                "imagenes/rioUno.jpg",
-                caption="Vista Panorámica del Cauce - Quebrada La Agudelo",
-                use_column_width=True,
-            )
+            if os.path.exists(img_path1):
+                st.image(
+                    img_path1,
+                    caption="Vista Panorámica del Cauce - Quebrada La Agudelo",
+                    use_container_width=True,
+                )
+            else:
+                st.warning(f"⚠️ No se encontró la imagen en: `{img_path1}`")
 
         with col_img2:
-            st.image(
-                "imagenes/rioDos.jpg",
-                caption="Estación de Monitoreo - El Retiro",
-                use_column_width=True,
-            )
+            if os.path.exists(img_path2):
+                st.image(
+                    img_path2,
+                    caption="Estación de Monitoreo - El Retiro",
+                    use_container_width=True,
+                )
+            else:
+                st.warning(f"⚠️ No se encontró la imagen en: `{img_path2}`")
 
     # ==================================================================
     # PESTAÑA 3: OTROS GRÁFICOS Y ANÁLISIS
