@@ -1,9 +1,9 @@
 """
 App Didáctica de Streamlit — Nivel de ríos/quebradas (CORNARE / MARCO)
 --------------------------------------------------------------------
-Para correrla:
+Para correr localmente:
     pip install streamlit pandas requests numpy plotly
-    streamlit run app_nivel_cornare.py
+    streamlit run aplicacion_datos.py
 """
 
 import requests
@@ -11,7 +11,6 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 import plotly.express as px
-import plotly.graph_objects as go
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -23,7 +22,7 @@ NOMBRE_ESTUDIANTE = "Esneider Cordoba"
 CODIGO_ESTACION = "14"
 NOMBRE_ESTACION = "El Retiro - Quebrada La Agudelo"
 
-# Coordenadas por defecto (Ubicación real aproximada de El Retiro, Antioquia)
+# Coordenadas por defecto (Ubicación aproximada de El Retiro, Antioquia)
 LAT_DEFECTO = 6.0583
 LON_DEFECTO = -75.4267
 
@@ -115,7 +114,6 @@ def calcular_indice_calidad(df):
 # ------------------------------------------------------------------
 # Interfaz de Usuario (Sidebar)
 # ------------------------------------------------------------------
-st.sidebar.image("https://www.cornare.gov.co/wp-content/uploads/2020/05/logo-cornare.png", use_container_width=True)
 st.sidebar.title("🎛️ Filtros de Consulta")
 
 fecha_desde = st.sidebar.date_input("Fecha Inicio", pd.to_datetime("2026-08-23")).strftime("%Y-%m-%d")
@@ -153,9 +151,7 @@ if consultar:
         lat, lon, coords_reales = detectar_coordenadas(datos_crudos)
         indice_calidad, huecos, n_outliers = calcular_indice_calidad(df)
 
-        # ------------------------------------------------------------------
-        # Estructura de Pestañas (Tabs)
-        # ------------------------------------------------------------------
+        # Pestañas para organizar la información
         tab_resumen, tab_mapa, tab_graficos, tab_calidad = st.tabs([
             "📊 Dashboard & Diagnóstico", 
             "🗺️ Geolocalización", 
@@ -199,7 +195,6 @@ if consultar:
                 title="Histórico Temporal del Nivel de la Quebrada",
                 template="plotly_white"
             )
-            # Agregar línea horizontal del promedio
             fig_linea.add_hline(y=nivel_prom, line_dash="dash", line_color="orange", annotation_text="Promedio")
             fig_linea.update_traces(line_color="#0B5ED7", line_width=2)
             st.plotly_chart(fig_linea, use_container_width=True)
@@ -213,15 +208,14 @@ if consultar:
             col_map1, col_map2 = st.columns([2, 1])
 
             with col_map1:
-                # Datos para el mapa
                 map_df = pd.DataFrame({
                     "lat": [lat],
                     "lon": [lon],
                     "nombre": [f"Estación {CODIGO_ESTACION}: {NOMBRE_ESTACION}"]
                 })
                 
-                # Mapa interactivo con Plotly Scattermapbox
-                fig_mapa = px.scatter_mapbox(
+                # Mapa interactivo con la nueva función px.scatter_map
+                fig_mapa = px.scatter_map(
                     map_df,
                     lat="lat",
                     lon="lon",
@@ -230,7 +224,7 @@ if consultar:
                     height=450
                 )
                 fig_mapa.update_traces(marker=dict(size=15, color="red"))
-                fig_mapa.update_layout(mapbox_style="open-street-map")
+                fig_mapa.update_layout(map_style="open-street-map")
                 fig_mapa.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
                 
                 st.plotly_chart(fig_mapa, use_container_width=True)
@@ -284,11 +278,12 @@ if consultar:
             st.markdown("#### 3. Variación del Nivel por Hora del Día")
             st.caption("Permite identificar si hay patrones u horarios fijos de subida del nivel.")
             
-            df["hora"] = df["fecha"].dt.hour
-            df_hora = df.groupby("hora")["nivel"].mean().reset_index()
+            df_hora = df.copy()
+            df_hora["hora"] = df_hora["fecha"].dt.hour
+            df_prom_hora = df_hora.groupby("hora")["nivel"].mean().reset_index()
 
             fig_hora = px.bar(
-                df_hora, x="hora", y="nivel",
+                df_prom_hora, x="hora", y="nivel",
                 labels={"hora": "Hora del Día (0-23)", "nivel": "Nivel Promedio (m)"},
                 color_discrete_sequence=["#20C997"]
             )
@@ -333,16 +328,15 @@ if consultar:
             )
 
 else:
-    # Mensaje inicial cuando se entra a la aplicación sin hacer clic en Consultar
     st.info("👈 Para iniciar, selecciona el rango de fechas en el panel lateral y haz clic en **Consultar Estación**.")
     
     st.markdown("""
     ### ℹ️ Acerca de esta herramienta
-    Esta aplicación permite consultar los datos hidrológicos de la red de monitoreo **MARCO** de la **CORNARE**, específicamente para la quebrada **La Agudelo** en el municipio de **El Retiro**.
+    Esta aplicación permite consultar los datos hidrológicos de la red de monitoreo **MARCO** de **CORNARE**, específicamente para la quebrada **La Agudelo** en el municipio de **El Retiro**.
     
-    **Características principales:**
-    - 📊 **Visualización clara:** Gráficos sencillos y métricas clave.
-    - 🗺️ **Mapa Interactivo:** Ubicación precisa de la estación.
-    - 📈 **Análisis Estadístico:** Análisis por hora y frecuencias.
-    - 🔬 **Validación de Datos:** Índice de completitud y calidad del sensor.
+    **Secciones de la App:**
+    - 📊 **Dashboard & Diagnóstico:** Resumen ejecutivo y alertas de alerta/seguridad.
+    - 🗺️ **Geolocalización:** Mapa interactivo de la estación de monitoreo.
+    - 📈 **Análisis Gráfico:** Histogramas, diagramas de caja y promedios por hora.
+    - 🔬 **Calidad de Datos:** Auditoría de la calidad de los datos y descarga en formato CSV.
     """)
