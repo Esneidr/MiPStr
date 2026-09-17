@@ -1,6 +1,5 @@
 streamlit
-pandas
 numpy
+pandas
 matplotlib
 scikit-learn
-influxdb-client
