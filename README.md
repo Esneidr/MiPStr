@@ -1,47 +1,46 @@
-# 🌡️ Predictor de Sensación Térmica — Taller IoT
+# 🌧️ Predicción de Lluvia — Regresión Logística Interactiva
 
-Aplicación interactiva construida en **Python** con **Streamlit** que consulta datos en tiempo real desde **InfluxDB Cloud** (provenientes de un sensor **ESP32 + DHT22**), procesa la serie de tiempo, entrena un modelo de **Regresión Lineal Múltiple** con `scikit-learn` y permite realizar predicciones de sensación térmica.
+Aplicación interactiva desarrollada en **Python** con **Streamlit** que implementa un modelo de **Regresión Logística** para predecir si lloverá al día siguiente. Permite ajustar variables predictoras, modificar el umbral de decisión y simular nuevos días de manera interactiva.
 
 ---
 
 ## 🧩 Estructura y Componentes del Código
 
-El archivo principal está organizado en cuatro secciones funcionales:
+El archivo principal se organiza en cinco secciones funcionales:
 
-### 1. Configuración Inicial y Librerías
-* **`st.set_page_config`:** Establece el título de la pestaña, el icono (🌡️) y el diseño centrado de la interfaz.
-* **`COLUMNAS`:** Define la lista de variables requeridas (`temperatura`, `humedad`, `sensacion_termica`).
-* **Importación de módulos:** Utiliza `pandas`, `numpy`, `matplotlib`, `scikit-learn` y el cliente oficial de `influxdb_client`.
+### 1. Configuración y Generación de Datos Sintéticos
+* **`st.set_page_config`:** Define el título de la pestaña ("¿Lloverá mañana?") y configura el diseño en formato ancho (`wide`).
+* **`generar_datos(n=300, seed=42)`:** Función optimizada con `@st.cache_data` que crea un dataset sintético de 300 días con tres variables climáticas: `temperatura`, `humedad` y `viento`. Calcula la variable objetivo binaria (`llovio`) mediante la función sigmoide aplicada a un valor lineal $z$.
 
-### 2. Funciones de Datos y Machine Learning
+### 2. Panel Lateral (Sidebar) y Parámetros
+* **Filtro de Variables:** Casillas de verificación (`st.sidebar.checkbox`) para activar o desactivar dinámicamente `temperatura`, `humedad` y `viento`. Detiene la ejecución si no hay ninguna seleccionada.
+* **Umbral de Clasificación:** Deslizador (`st.sidebar.slider`) que permite cambiar el umbral de probabilidad para clasificar entre lluvia ($1$) y no lluvia ($0$), variando entre 0.0 y 1.0.
+* **Simulador de Clima:** Entradas interactivas para configurar las condiciones climáticas de un "nuevo día" y predecir su probabilidad de lluvia.
 
-* **`obtener_datos_crudos(...)`:** Conecta a InfluxDB con un *context manager* (`with`), ejecuta una consulta Flux sobre el bucket seleccionado, pivota las métricas por fecha, ajusta la zona horaria a `America/Bogota` y retorna un DataFrame con los datos brutos.
-* **`preparar_datos(...)`:** Aplica interpolación basada en tiempo (`method="time"`) para corregir vacíos de lectura del sensor y elimina los nulos sobrantes.
-* **`detectar_outliers_iqr(...)`:** Calcula el Rango Intercuartílico ($IQR = Q3 - Q1$) para identificar registros atípicos fuera de los límites aceptables.
-* **`entrenar_modelo(...)`:**
-  * Divide la información en conjuntos de entrenamiento (70%) y prueba (30%).
-  * Ajusta un modelo de `LinearRegression` con las variables predictoras (`temperatura` y `humedad`).
-  * Calcula y retorna las métricas de error: $MAE$, $RMSE$ y el coeficiente de determinación $R^2$.
+### 3. Entrenamiento del Modelo
+* **`entrenar_modelo(...)`:** Función en caché (`@st.cache_data`) que divide los datos en conjuntos de entrenamiento (75%) y prueba (25%), ajustando un modelo de `LogisticRegression` de `scikit-learn`.
+* **Evaluación en Tiempo Real:** Calcula las probabilidades predichas sobre el conjunto de prueba y asigna la clasificación final según el umbral configurado por el usuario.
 
-### 3. Barra Lateral (Sidebar)
-* Formulario para ingresar las **credenciales de InfluxDB** (URL, Token, Org, Bucket y Measurement).
-* Control deslizable (*slider*) para seleccionar el historial de consulta (de 1 a 12 horas).
-* Botón **"🔄 Consultar datos y entrenar modelo"**, activo únicamente cuando todas las credenciales han sido completadas.
+### 4. Layout Principal y Visualizaciones
+Organizado en dos columnas principales (`col1` y `col2`):
 
-### 4. Interfaz Principal y Pestañas
+* **Columna 1:**
+  * **Métricas Diarias:** Despliega la probabilidad estimada y el resultado del "nuevo día".
+  * **Curva Sigmoide:** Grafica la función sigmoide con `matplotlib`, señalando la posición exacta del punto simular y la línea del umbral seleccionado.
+* **Columna 2:**
+  * **Diagrama de Dispersión:** Visualiza la relación entre Temperatura y Humedad diferenciando los días con y sin lluvia.
+  * **Importancia de Variables:** Muestra un gráfico de barras horizontales con los coeficientes del modelo para comparar el peso de cada variable.
 
-Una vez realizada la consulta, guarda el DataFrame y el modelo en `st.session_state` y despliega:
-
-* **Métricas Principales:** Muestra los valores de la última lectura registrada (Temperatura, Humedad y Sensación Térmica real).
-* **Pestaña 📊 Estadísticos:** Contiene la gráfica temporal de las variables, estadísticas descriptivas (`describe()`) y diagramas de caja (*boxplots*).
-* **Pestaña 🧹 Preparación de datos:** Muestra el tipo de datos, recuento de faltantes, gráfico del efecto de interpolación y tabla de outliers detectados por IQR.
-* **Pestaña 📈 Análisis del modelo:** Despliega un diagrama de dispersión en 3D, la ecuación final en formato LaTeX ($\text{sensación} = \beta_0 + \beta_1 \cdot \text{temp} + \beta_2 \cdot \text{hum}$) y las métricas de desempeño ($MAE$, $RMSE$, $R^2$).
-* **Pestaña 🔮 Predicción:** Ofrece una calculadora interactiva donde el usuario puede ingresar sus propios coeficientes ($\beta_0, \beta_1, \beta_2$) y evaluar valores arbitrarios de temperatura y humedad.
+### 5. Evaluación de Desempeño y Guía Pedagógica
+* **Matriz de Confusión y Métricas:** Despliega una `ConfusionMatrixDisplay` junto con los valores de **Accuracy**, **Precisión** y **Recall**.
+* **Detección de Sesgo de Clasificación:** Emite mensajes de información condicionales (`st.info`) comparando la presencia de **Falsos Positivos** frente a **Falsos Negativos**.
+* **Cuestionario Interactivo:** Incluye una guía de 5 preguntas orientadas a evaluar el impacto de los hiperparámetros y variables en el rendimiento del modelo.
 
 ---
 
-## 🚀 Requisitos de Ejecución
+## 🚀 Requisitos e Instalación
+
+Para ejecutar la aplicación localmente, instala las librerías necesarias:
 
 ```bash
-pip install streamlit pandas numpy matplotlib scikit-learn influxdb-client
-streamlit run app.py
+pip install streamlit pandas numpy matplotlib scikit-learn
