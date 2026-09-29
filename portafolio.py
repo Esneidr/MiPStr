@@ -57,7 +57,7 @@ st.markdown("""
 
 # --- BARRA LATERAL (INFORMACIÓN ACADÉMICA Y PROYECTO) ---
 with st.sidebar:
-    st.image("https://pascualbravo.edu.co/wp-content/uploads/2021/04/logo-pascual-bravo.png", use_container_width=True)
+    st.image("images/Logo_Pascual_Bravo_2.png", use_container_width=True)
     st.title("🎓 Datos del Proyecto")
     
     st.markdown("""
@@ -113,7 +113,7 @@ proyectos = [
         "fecha": "Septiembre, 2026",
         "titulo": "Conversión de texto a voz",
         "descripcion": "Aplicación basada en Inteligencia Artificial diseñada para transformar texto escrito en habla natural de forma fluida y multimodal.",
-        #"imagen": "txt_to_audio2.png",
+        "imagen": "images/txt_to_audio2.png",
         "url": "https://imultimod.streamlit.app/",
         "label_btn": "Ir a Texto a Voz"
     },
