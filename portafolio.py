@@ -113,7 +113,7 @@ proyectos = [
         "fecha": "Septiembre, 2026",
         "titulo": "Conversión de texto a voz",
         "descripcion": "Aplicación basada en Inteligencia Artificial diseñada para transformar texto escrito en habla natural de forma fluida y multimodal.",
-        "imagen": "txt_to_audio2.png",
+        #"imagen": "txt_to_audio2.png",
         "url": "https://imultimod.streamlit.app/",
         "label_btn": "Ir a Texto a Voz"
     },
@@ -122,7 +122,7 @@ proyectos = [
         "fecha": "Septiembre, 2026",
         "titulo": "Conversión de voz a texto",
         "descripcion": "Sistema de reconocimiento de voz que permite transcribir audio a texto en tiempo real con alta precisión.",
-        "imagen": "OIG8.jpg",
+        #"imagen": "OIG8.jpg",
         "url": "https://traductorw.streamlit.app/",
         "label_btn": "Ir a Voz a Texto"
     },
@@ -131,7 +131,7 @@ proyectos = [
         "fecha": "Septiembre, 2026",
         "titulo": "Generación en Contexto (Chat PDF)",
         "descripcion": "Aplicación de arquitectura RAG que permite realizar preguntas y respuestas fundamentadas a partir de documentos PDF.",
-        "imagen": "Chat_pdf.png",
+        #"imagen": "Chat_pdf.png",
         "url": "https://chatpdf-cc.streamlit.app/",
         "label_btn": "Ir a Chat PDF"
     },
@@ -140,7 +140,7 @@ proyectos = [
         "fecha": "Septiembre, 2026",
         "titulo": "Reconocimiento de Objetos (YOLO)",
         "descripcion": "Detección y localización de objetos múltiples en imágenes mediante modelos avanzados de la familia YOLO.",
-        "imagen": "txt_to_audio.png",
+        #"imagen": "txt_to_audio.png",
         "url": "https://yolov5cmc.streamlit.app/",
         "label_btn": "Ir a YOLO Objeto"
     },
@@ -149,7 +149,7 @@ proyectos = [
         "fecha": "Septiembre, 2026",
         "titulo": "Análisis de Datos con Agentes",
         "descripcion": "Plataforma de análisis avanzado de datos potenciada por agentes inteligentes para interpretación de métricas.",
-        "imagen": "data_analisis.png",
+        #"imagen": "data_analisis.png",
         "url": "https://dataagente.streamlit.app/",
         "label_btn": "Ir a Agente de Datos"
     },
@@ -158,7 +158,7 @@ proyectos = [
         "fecha": "Septiembre, 2026",
         "titulo": "Análisis de Imagen con Visión Multimodal",
         "descripcion": "Uso de modelos de visión avanzada (GPT-4o) para la interpretación, descripción y extracción de contexto en imágenes.",
-        "imagen": "OIG4.jpg",
+        #"imagen": "OIG4.jpg",
         "url": "https://vision2-gpt4o.streamlit.app/",
         "label_btn": "Ir a Visión GPT-4o"
     },
@@ -167,7 +167,7 @@ proyectos = [
         "fecha": "Septiembre, 2026",
         "titulo": "Entrenando Modelos",
         "descripcion": "Demostración interactiva sobre cómo desplegar e interactuar con modelos de IA entrenados a medida.",
-        "imagen": "OIG5.jpg",
+        #"imagen": "OIG5.jpg",
         "url": "https://xn3pg24ztuv6fdiqon8qn3.streamlit.app/",
         "label_btn": "Ir a Modelo Entrenado"
     },
@@ -176,7 +176,7 @@ proyectos = [
         "fecha": "Septiembre, 2026",
         "titulo": "Transcriptor Audio y Video (Whisper)",
         "descripcion": "Herramienta de transcripción automática de archivos de audio y video utilizando la tecnología Whisper.",
-        "imagen": "OIG3.jpg",
+        #"imagen": "OIG3.jpg",
         "url": "https://transcript-whisper.streamlit.app/",
         "label_btn": "Ir a Transcriptor"
     },
@@ -185,7 +185,7 @@ proyectos = [
         "fecha": "Septiembre, 2026",
         "titulo": "Sistema Ciberfísico",
         "descripcion": "Interacción entre algoritmos de visión por computador y entornos físicos para aplicaciones avanzadas.",
-        "imagen": "OIG6.jpg",
+        #"imagen": "OIG6.jpg",
         "url": "https://vision2-gpt4o.streamlit.app/",
         "label_btn": "Ir a Sistema Ciberfísico"
     }
