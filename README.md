@@ -39,14 +39,3 @@ La plataforma reúne las siguientes aplicaciones interactiva desplegadas:
 * **Framework Web:** [Streamlit](https://streamlit.io/)
 * **Procesamiento de Imágenes:** [Pillow (PIL)](https://python-pillow.org/)
 * **Control de Versiones:** Git & GitHub
-
----
-
-## 💻 Instalación y Ejecución Local
-
-Sigue estos pasos para ejecutar el proyecto en tu máquina local:
-
-### 1. Clonar el repositorio
-```bash
-git clone [https://github.com/TU-USUARIO/TU-REPOSITORIO.git](https://github.com/TU-USUARIO/TU-REPOSITORIO.git)
-cd TU-REPOSITORIO
