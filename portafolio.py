@@ -2,12 +2,16 @@ import streamlit as st
 from PIL import Image
 
 # Configuración de página
-st.set_page_config(page_title="Portafolio de Aplicaciones IA", layout="wide")
+st.set_page_config(
+    page_title="Portafolio de Aplicaciones IA - I.U. Pascual Bravo", 
+    layout="wide",
+    page_icon="🤖"
+)
 
-# CSS Personalizado para imitar las tarjetas de la imagen de referencia
+# CSS Personalizado para las tarjetas y bloques de información
 st.markdown("""
 <style>
-    /* Estilo para las etiquetas de categoría (badge azul) */
+    /* Estilo para tarjetas de proyectos */
     .badge {
         background-color: #1a73e8;
         color: white;
@@ -19,14 +23,12 @@ st.markdown("""
         margin-bottom: 8px;
     }
     
-    /* Fecha o texto secundario */
     .date-text {
         color: #5f6368;
         font-size: 14px;
         margin-bottom: 6px;
     }
 
-    /* Título de la tarjeta */
     .card-title {
         font-size: 20px;
         font-weight: bold;
@@ -35,22 +37,51 @@ st.markdown("""
         line-height: 1.3;
     }
 
-    /* Descripción */
     .card-description {
         color: #3c4043;
         font-size: 14px;
         line-height: 1.5;
         margin-bottom: 12px;
     }
+
+    /* Estilo para información académica */
+    .info-header {
+        background-color: #f8f9fa;
+        border-left: 5px solid #1a73e8;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 25px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# Título Principal
-st.title("Aplicaciones de Inteligencia Artificial")
-
-# Barra Lateral
+# --- BARRA LATERAL (INFORMACIÓN ACADÉMICA Y PROYECTO) ---
 with st.sidebar:
-    st.subheader("Aplicaciones con Inteligencia Artificial")
+    st.image("https://pascualbravo.edu.co/wp-content/uploads/2021/04/logo-pascual-bravo.png", use_container_width=True)
+    st.title("🎓 Datos del Proyecto")
+    
+    st.markdown("""
+    **👨‍💻 Realizado por:**  
+    Esneider Córdoba  
+    
+    **👨‍🏫 Profesor:**  
+    Carlos Mario Correa  
+    
+    **📚 Asignatura:**  
+    Programación Avanzada  
+    
+    **🎓 Carrera:**  
+    Ingeniería en Desarrollo de Software  
+    
+    **🏛️ Institución:**  
+    I.U. Pascual Bravo  
+    
+    **📍 Ubicación:**  
+    Medellín, Colombia  
+    """)
+    st.divider()
+    
+    st.subheader("💡 Sobre las Aplicaciones")
     parrafo = (
         "La inteligencia artificial permite mejorar la toma de decisiones con el uso de datos, "
         "automatizar tareas rutinarias y proporcionar análisis avanzados en tiempo real, lo que "
@@ -58,12 +89,24 @@ with st.sidebar:
     )
     st.write(parrafo)
 
+# --- ENCABEZADO PRINCIPAL ---
+st.title("Aplicaciones de Inteligencia Artificial")
+
+# Bloque destacado con la información del curso e institución
+st.markdown("""
+<div class="info-header">
+    <h4 style="margin:0; color:#1a73e8;">🏛️ I.U. Pascual Bravo | Medellín, Colombia</h4>
+    <p style="margin:5px 0 0 0;"><b>Programa:</b> Ingeniería en Desarrollo de Software | <b>Materia:</b> Programación Avanzada</p>
+    <p style="margin:2px 0 0 0;"><b>Estudiante:</b> Esneider Córdoba | <b>Docente:</b> Carlos Mario Correa</p>
+</div>
+""", unsafe_allow_html=True)
+
 url_ia = "https://sites.google.com/view/aplicacionesdeia/inicio"
 st.subheader("En el siguiente enlace puedes encontrar páginas y ejercicios prácticos")
 st.markdown(f"🔗 [Acceder a Páginas y Ejercicios Prácticos]({url_ia})")
 st.divider()
 
-# Lista de proyectos para renderizar dinámicamente
+# --- LISTA DE PROYECTOS ---
 proyectos = [
     {
         "categoria": "Procesamiento de Audio",
@@ -148,21 +191,18 @@ proyectos = [
     }
 ]
 
-# Renderizado de Tarjetas estilo Card (Imagen a la izquierda, texto a la derecha)
+# --- RENDERIZADO DE LAS TARJETAS (STYLE CARD HORIZONTAL) ---
 for proj in proyectos:
     with st.container(border=True):
         col_img, col_info = st.columns([1, 2.5], gap="medium")
         
-        # Columna de la Imagen
         with col_img:
             try:
                 img = Image.open(proj["imagen"])
                 st.image(img, use_container_width=True)
             except Exception:
-                # Placeholder si no se encuentra la imagen local
                 st.info(f"Imagen: {proj['imagen']}")
         
-        # Columna de la Información (Badge, Fecha, Título, Descripción, Enlace)
         with col_info:
             st.markdown(
                 f"""
