@@ -1,86 +1,259 @@
 import streamlit as st
 from PIL import Image
 
-# Configuración de página
+# =========================================================
+# CONFIGURACIÓN DE PÁGINA
+# =========================================================
 st.set_page_config(
-    page_title="Portafolio de Aplicaciones IA - I.U. Pascual Bravo", 
+    page_title="Portafolio de Aplicaciones IA - I.U. Pascual Bravo",
     layout="wide",
-    page_icon="🤖"
+    page_icon="🤖",
+    initial_sidebar_state="expanded"
 )
 
-# CSS Personalizado para las tarjetas y bloques de información
+# =========================================================
+# CSS PERSONALIZADO
+# =========================================================
 st.markdown("""
 <style>
-    /* Estilo para tarjetas de proyectos */
-    .badge {
-        background-color: #1a73e8;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Fondo general */
+    .stApp {
+        background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    }
+
+    /* ---------- HERO ---------- */
+    .hero {
+        background: linear-gradient(135deg, #1a73e8 0%, #6a4cff 100%);
+        padding: 40px 36px;
+        border-radius: 20px;
         color: white;
-        padding: 4px 12px;
+        margin-bottom: 28px;
+        box-shadow: 0 12px 32px rgba(26,115,232,0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    .hero::after {
+        content: "";
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 220px; height: 220px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 50%;
+    }
+    .hero h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 38px;
+        margin: 0 0 8px 0;
+        font-weight: 800;
+        color: #ffffff;
+    }
+    .hero p {
+        font-size: 16px;
+        opacity: 0.95;
+        margin: 0;
+        max-width: 720px;
+    }
+
+    /* ---------- INFO HEADER ---------- */
+    .info-header {
+        background: #ffffff;
+        border-left: 5px solid #1a73e8;
+        padding: 20px 24px;
         border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+    .info-header h4 {
+        margin: 0;
+        color: #1a73e8;
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+    }
+    .info-header p {
+        margin: 6px 0 0 0;
+        color: #3c4043;
+        font-size: 14px;
+    }
+
+    /* ---------- MÉTRICAS ---------- */
+    .metric-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin: 22px 0 32px 0;
+    }
+    .metric-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 18px;
+        text-align: center;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+        border-top: 3px solid #1a73e8;
+        transition: transform 0.2s ease;
+    }
+    .metric-card:hover { transform: translateY(-3px); }
+    .metric-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        color: #1a73e8;
+        margin: 0;
+    }
+    .metric-label {
         font-size: 13px;
+        color: #5f6368;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+
+    /* ---------- TARJETAS DE PROYECTO ---------- */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: #ffffff;
+        border-radius: 16px !important;
+        border: 1px solid #e6e9ef !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        transition: all 0.25s ease;
+        padding: 6px;
+    }
+    div[data-testid="stVerticalBlockBorderWrapper"]:hover {
+        box-shadow: 0 10px 28px rgba(26,115,232,0.15);
+        border-color: #1a73e8 !important;
+        transform: translateY(-3px);
+    }
+
+    .badge {
+        background: linear-gradient(135deg, #1a73e8, #6a4cff);
+        color: white;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 12px;
         font-weight: 600;
         display: inline-block;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
+        letter-spacing: 0.3px;
     }
-    
+
     .date-text {
         color: #5f6368;
-        font-size: 14px;
+        font-size: 13px;
         margin-bottom: 6px;
+        font-weight: 500;
     }
 
     .card-title {
+        font-family: 'Poppins', sans-serif;
         font-size: 20px;
-        font-weight: bold;
+        font-weight: 700;
         color: #1a1a1a;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         line-height: 1.3;
     }
 
     .card-description {
         color: #3c4043;
         font-size: 14px;
-        line-height: 1.5;
-        margin-bottom: 12px;
+        line-height: 1.6;
+        margin-bottom: 14px;
     }
 
-    /* Estilo para información académica */
-    .info-header {
-        background-color: #f8f9fa;
-        border-left: 5px solid #1a73e8;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 25px;
+    /* ---------- BOTÓN LINK ---------- */
+    div[data-testid="stLinkButton"] a {
+        background: linear-gradient(135deg, #1a73e8, #6a4cff) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 8px 22px !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        transition: all 0.2s ease;
     }
+    div[data-testid="stLinkButton"] a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(26,115,232,0.35);
+    }
+
+    /* ---------- SIDEBAR ---------- */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #ffffff 0%, #f4f7fb 100%);
+        border-right: 1px solid #e6e9ef;
+    }
+    section[data-testid="stSidebar"] h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 20px;
+        color: #1a73e8;
+    }
+
+    .profile-card {
+        background: linear-gradient(135deg, #1a73e8, #6a4cff);
+        border-radius: 14px;
+        padding: 18px;
+        color: white;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 20px rgba(26,115,232,0.25);
+    }
+    .profile-card h3 {
+        margin: 0 0 4px 0;
+        font-family: 'Poppins', sans-serif;
+        font-size: 17px;
+    }
+    .profile-card p {
+        margin: 2px 0;
+        font-size: 13px;
+        opacity: 0.92;
+    }
+
+    /* ---------- FOOTER ---------- */
+    .footer {
+        margin-top: 50px;
+        padding: 28px;
+        background: #1a1a1a;
+        color: #d1d5db;
+        border-radius: 16px;
+        text-align: center;
+        font-size: 13px;
+    }
+    .footer strong { color: #ffffff; }
+    .footer .accent { color: #6a9bff; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- BARRA LATERAL (INFORMACIÓN ACADÉMICA Y PROYECTO) ---
+
+# =========================================================
+# BARRA LATERAL (INFORMACIÓN ACADÉMICA Y PROYECTO)
+# =========================================================
 with st.sidebar:
     st.image("images/Logo_Pascual_Bravo_2.png", use_container_width=True)
-    st.title("🎓 Datos del Proyecto")
-    
+
     st.markdown("""
-    **👨‍💻 Realizado por:**  
-    Esneider Córdoba  
-    
-    **👨‍🏫 Profesor:**  
-    Carlos Mario Correa  
-    
+    <div class="profile-card">
+        <h3>🎓 Datos del Proyecto</h3>
+        <p><b>👨‍💻 Estudiante:</b> Esneider Córdoba</p>
+        <p><b>👨‍🏫 Docente:</b> Carlos Mario Correa</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
     **📚 Asignatura:**  
     Programación Avanzada  
-    
+
     **🎓 Carrera:**  
     Ingeniería en Desarrollo de Software  
-    
+
     **🏛️ Institución:**  
     I.U. Pascual Bravo  
-    
+
     **📍 Ubicación:**  
     Medellín, Colombia  
     """)
+
     st.divider()
-    
+
     st.subheader("💡 Sobre las Aplicaciones")
     parrafo = (
         "La inteligencia artificial permite mejorar la toma de decisiones con el uso de datos, "
@@ -89,24 +262,57 @@ with st.sidebar:
     )
     st.write(parrafo)
 
-# --- ENCABEZADO PRINCIPAL ---
-st.title("Aplicaciones de Inteligencia Artificial")
+
+# =========================================================
+# HERO PRINCIPAL
+# =========================================================
+st.markdown("""
+<div class="hero">
+    <h1>🤖 Aplicaciones de Inteligencia Artificial</h1>
+    <p>Portafolio interactivo de proyectos académicos desarrollados en la asignatura de Programación Avanzada.</p>
+</div>
+""", unsafe_allow_html=True)
 
 # Bloque destacado con la información del curso e institución
 st.markdown("""
 <div class="info-header">
-    <h4 style="margin:0; color:#1a73e8;">🏛️ I.U. Pascual Bravo | Medellín, Colombia</h4>
-    <p style="margin:5px 0 0 0;"><b>Programa:</b> Ingeniería en Desarrollo de Software | <b>Materia:</b> Programación Avanzada</p>
-    <p style="margin:2px 0 0 0;"><b>Estudiante:</b> Esneider Córdoba | <b>Docente:</b> Carlos Mario Correa</p>
+    <h4>🏛️ I.U. Pascual Bravo | Medellín, Colombia</h4>
+    <p><b>Programa:</b> Ingeniería en Desarrollo de Software | <b>Materia:</b> Programación Avanzada</p>
+    <p><b>Estudiante:</b> Esneider Córdoba | <b>Docente:</b> Carlos Mario Correa</p>
+</div>
+""", unsafe_allow_html=True)
+
+# Franja de métricas (visual, sin alterar contenido)
+st.markdown("""
+<div class="metric-strip">
+    <div class="metric-card">
+        <p class="metric-value">11</p>
+        <p class="metric-label">Aplicaciones publicadas</p>
+    </div>
+    <div class="metric-card">
+        <p class="metric-value">ML</p>
+        <p class="metric-label">Categoría principal</p>
+    </div>
+    <div class="metric-card">
+        <p class="metric-value">2026</p>
+        <p class="metric-label">Periodo académico</p>
+    </div>
+    <div class="metric-card">
+        <p class="metric-value">Streamlit</p>
+        <p class="metric-label">Tecnología base</p>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 url_ia = "https://sites.google.com/view/aplicacionesdeia/inicio"
-st.subheader("En el siguiente enlace puedes encontrar páginas y ejercicios prácticos")
-st.markdown(f"🔗 [Acceder a Páginas y Ejercicios Prácticos]({url_ia})")
+st.subheader("🔗 En el siguiente enlace puedes encontrar páginas y ejercicios prácticos")
+st.markdown(f"[Acceder a Páginas y Ejercicios Prácticos]({url_ia})")
 st.divider()
 
-# --- LISTA DE PROYECTOS ---
+
+# =========================================================
+# LISTA DE PROYECTOS
+# =========================================================
 proyectos = [
     {
         "categoria": "Machine Learning",
@@ -209,26 +415,42 @@ proyectos = [
     }
 ]
 
-# --- RENDERIZADO DE LAS TARJETAS (STYLE CARD HORIZONTAL) ---
+
+# =========================================================
+# RENDERIZADO DE LAS TARJETAS
+# =========================================================
 for proj in proyectos:
     with st.container(border=True):
         col_img, col_info = st.columns([1, 2.5], gap="medium")
-        
+
         with col_img:
             try:
                 img = Image.open(proj["imagen"])
                 st.image(img, use_container_width=True)
             except Exception:
                 st.info(f"Imagen: {proj['imagen']}")
-        
+
         with col_info:
             st.markdown(
                 f"""
                 <span class="badge">{proj['categoria']}</span>
-                <div class="date-text">{proj['fecha']}</div>
+                <div class="date-text">📅 {proj['fecha']}</div>
                 <div class="card-title">{proj['titulo']}</div>
                 <div class="card-description">{proj['descripcion']}</div>
                 """,
                 unsafe_allow_html=True
             )
             st.link_button(proj["label_btn"], proj["url"])
+
+
+# =========================================================
+# FOOTER
+# =========================================================
+st.markdown("""
+<div class="footer">
+    <p><strong>Portafolio de Aplicaciones de Inteligencia Artificial</strong></p>
+    <p>I.U. Pascual Bravo · Ingeniería en Desarrollo de Software · Programación Avanzada</p>
+    <p>Estudiante: <span class="accent">Esneider Córdoba</span> · Docente: <span class="accent">Carlos Mario Correa</span></p>
+    <p style="margin-top:8px; opacity:0.7;">Medellín, Colombia · 2026</p>
+</div>
+""", unsafe_allow_html=True)
