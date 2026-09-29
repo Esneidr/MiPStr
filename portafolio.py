@@ -109,85 +109,103 @@ st.divider()
 # --- LISTA DE PROYECTOS ---
 proyectos = [
     {
-        "categoria": "Procesamiento de Audio",
-        "fecha": "Septiembre, 2026",
-        "titulo": "Conversión de texto a voz",
-        "descripcion": "Aplicación basada en Inteligencia Artificial diseñada para transformar texto escrito en habla natural de forma fluida y multimodal.",
-        "imagen": "images/txt_to_audio2.png",
-        "url": "https://imultimod.streamlit.app/",
-        "label_btn": "Ir a Texto a Voz"
+        "categoria": "Machine Learning",
+        "fecha": "Agosto, 2026",
+        "titulo": "Calculo aplicado, gradiente",
+        "descripcion": "Una aplicación para explorar visualmente el comportamiento y la convergencia del algoritmo de Descenso de Gradiente en problemas de optimización y Machine Learning.",
+        "imagen": "images/gradiente.png",
+        "url": "https://mipstr-7wje3fzgnedzpabcgidfqq.streamlit.app/",
+        "label_btn": "Explorar"
     },
     {
-        "categoria": "Procesamiento de Audio",
-        "fecha": "Septiembre, 2026",
-        "titulo": "Conversión de voz a texto",
-        "descripcion": "Sistema de reconocimiento de voz que permite transcribir audio a texto en tiempo real con alta precisión.",
-        #"imagen": "OIG8.jpg",
-        "url": "https://traductorw.streamlit.app/",
-        "label_btn": "Ir a Voz a Texto"
+        "categoria": "Machine Learning",
+        "fecha": "Agosto, 2026",
+        "titulo": "Detección de anomalías",
+        "descripcion": "Aplicación web interactiva. Su objetivo principal es demostrar visual y cuantitativamente cómo una misma decisión lógica puede ejecutarse de manera ineficiente usando bucles tradicionales frente a una implementación optimizada (vectorizada) con NumPy.",
+        "imagen": "images/detector_anomalias.png",
+        "url": "https://mipstr-bn36ak2fzsqtq7ingnpwnt.streamlit.app/",
+        "label_btn": "Explorar"
     },
     {
-        "categoria": "Generación & RAG",
-        "fecha": "Septiembre, 2026",
-        "titulo": "Generación en Contexto (Chat PDF)",
-        "descripcion": "Aplicación de arquitectura RAG que permite realizar preguntas y respuestas fundamentadas a partir de documentos PDF.",
-        #"imagen": "Chat_pdf.png",
-        "url": "https://chatpdf-cc.streamlit.app/",
-        "label_btn": "Ir a Chat PDF"
+        "categoria": "Machine Learning",
+        "fecha": "Agosto, 2026",
+        "titulo": "Preparación de datos",
+        "descripcion": "Este proyecto es una aplicación web interactiva diseñada para visualizar y experimentar con los pasos críticos del Procesamiento y Limpieza de Datos (Pipeline de ETL) antes de entrenar cualquier modelo de Machine Learning o Inteligencia Artificial.",
+        "imagen": "images/preparacion_datos.png",
+        "url": "https://mipstr-7uddnptkcyerxukdtggxoy.streamlit.app/",
+        "label_btn": "Explorar"
     },
     {
-        "categoria": "Visión por Computador",
-        "fecha": "Septiembre, 2026",
-        "titulo": "Reconocimiento de Objetos (YOLO)",
-        "descripcion": "Detección y localización de objetos múltiples en imágenes mediante modelos avanzados de la familia YOLO.",
-        #"imagen": "txt_to_audio.png",
-        "url": "https://yolov5cmc.streamlit.app/",
-        "label_btn": "Ir a YOLO Objeto"
-    },
-    {
-        "categoria": "Análisis de Datos",
-        "fecha": "Septiembre, 2026",
-        "titulo": "Análisis de Datos con Agentes",
-        "descripcion": "Plataforma de análisis avanzado de datos potenciada por agentes inteligentes para interpretación de métricas.",
-        #"imagen": "data_analisis.png",
-        "url": "https://dataagente.streamlit.app/",
-        "label_btn": "Ir a Agente de Datos"
-    },
-    {
-        "categoria": "Visión por Computador",
-        "fecha": "Septiembre, 2026",
-        "titulo": "Análisis de Imagen con Visión Multimodal",
-        "descripcion": "Uso de modelos de visión avanzada (GPT-4o) para la interpretación, descripción y extracción de contexto en imágenes.",
-        #"imagen": "OIG4.jpg",
-        "url": "https://vision2-gpt4o.streamlit.app/",
-        "label_btn": "Ir a Visión GPT-4o"
+        "categoria": "Machine Learning",
+        "fecha": "Agosto, 2026",
+        "titulo": "Monitoreo de nivel de agua",
+        "descripcion": "Este proyecto es un panel de control interactivo que se conecta en tiempo real a la API pública de CORNARE. Su propósito es permitir la consulta, visualización geográfica, análisis estadístico y control de calidad de datos hidrológicos (niveles de agua en metros) registrados por estaciones de monitoreo ambiental.",
+        "imagen": "images/nivel_rio.png",
+        "url": "https://mipstr-5o4jjuy7yrevvawy9rijqn.streamlit.app/#nivel-de-rios-y-quebradas-cornare",
+        "label_btn": "Explorar"
     },
     {
         "categoria": "Machine Learning",
         "fecha": "Septiembre, 2026",
-        "titulo": "Entrenando Modelos",
-        "descripcion": "Demostración interactiva sobre cómo desplegar e interactuar con modelos de IA entrenados a medida.",
-        #"imagen": "OIG5.jpg",
-        "url": "https://xn3pg24ztuv6fdiqon8qn3.streamlit.app/",
-        "label_btn": "Ir a Modelo Entrenado"
+        "titulo": "Regresión lineal",
+        "descripcion": "Aplicación educativa e interactiva diseñada para enseñar las bases teóricas y prácticas de los algoritmos de regresión en Machine Learning. Utilizando datos reales del Censo de Vivienda de California (1990) de scikit-learn, el cuadro de mando permite descomponer y manipular todas las etapas involucradas en el entrenamiento, optimización y evaluación de modelos predictivos continuos.",
+        "imagen": "images/regresion_lineal.png",
+        "url": "https://mipstr-923mzfjnarosjb8hsfysyq.streamlit.app/",
+        "label_btn": "Explorar"
     },
     {
-        "categoria": "Procesamiento de Audio / Video",
+        "categoria": "Machine Learning",
         "fecha": "Septiembre, 2026",
-        "titulo": "Transcriptor Audio y Video (Whisper)",
-        "descripcion": "Herramienta de transcripción automática de archivos de audio y video utilizando la tecnología Whisper.",
-        #"imagen": "OIG3.jpg",
-        "url": "https://transcript-whisper.streamlit.app/",
-        "label_btn": "Ir a Transcriptor"
+        "titulo": "Series de tiempo",
+        "descripcion": "Aplicación interactiva que permite explorar, analizar y modelar series temporales continuas mediante la simulación en tiempo real de un sensor de temperatura IoT (DHT22).",
+        "imagen": "images/series_tiempo.png",
+        "url": "https://mipstr-bp5qqtcjroax2fnudvgjwz.streamlit.app/",
+        "label_btn": "Explorar"
     },
     {
-        "categoria": "Sistemas Ciberfísicos",
+        "categoria": "Machine Learning",
         "fecha": "Septiembre, 2026",
-        "titulo": "Sistema Ciberfísico",
-        "descripcion": "Interacción entre algoritmos de visión por computador y entornos físicos para aplicaciones avanzadas.",
-        #"imagen": "OIG6.jpg",
-        "url": "https://vision2-gpt4o.streamlit.app/",
-        "label_btn": "Ir a Sistema Ciberfísico"
+        "titulo": "Predicción y modelado de la calidad de aire",
+        "descripcion": "Permite realizar pronósticos hacia adelante de material particulado (PM2.5 y PM10) utilizando datos de las estaciones de monitoreo ambiental de la cuenca CORNARE.",
+        "imagen": "images/prediccion.png",
+        "url": "https://mipstr-4gj8evjlxzsjvzp3swkaco.streamlit.app/",
+        "label_btn": "Explorar"
+    },
+    {
+        "categoria": "Machine Learning",
+        "fecha": "Septiembre, 2026",
+        "titulo": "Sistema de IOT Captura de datos y procesamiento",
+        "descripcion": "Aplicación interactiva que consulta datos en tiempo real desde InfluxDB Cloud (provenientes de un sensor ESP32 + DHT22), procesa la serie de tiempo, entrena un modelo de Regresión Lineal Múltiple con scikit-learn y permite realizar predicciones de sensación térmica.",
+        "imagen": "images/IOT.png",
+        "url": "https://mipstr-fckie2ywgeueminysuxjar.streamlit.app/",
+        "label_btn": "Explorar"
+    },
+    {
+        "categoria": "Machine Learning",
+        "fecha": "Septiembre, 2026",
+        "titulo": "Regresión logísitica",
+        "descripcion": "Aplicación interactiva que implementa un modelo de Regresión Logística para predecir si lloverá al día siguiente. Permite ajustar variables predictoras, modificar el umbral de decisión y simular nuevos días de manera interactiva.",
+        "imagen": "images/logistica.png",
+        "url": "https://mipstr-dcwpxewdzxutuejplyrsmb.streamlit.app/",
+        "label_btn": "Explorar"
+    },
+    {
+        "categoria": "Machine Learning",
+        "fecha": "Septiembre, 2026",
+        "titulo": "Clasificación KNN",
+        "descripcion": "Una aplicación web educativa, interactiva con un algoritmo de aprendizaje automático K-Nearest Neighbors (KNN) o K-Vecinos Más Cercanos.",
+        "imagen": "images/KNN.png",
+        "url": "https://mipstr-9etfvoafm54yhpj4nwduyp.streamlit.app/",
+        "label_btn": "Explorar"
+    },
+    {
+        "categoria": "Machine Learning",
+        "fecha": "Septiembre, 2026",
+        "titulo": "Clasificación de fertilidad de  suelos",
+        "descripcion": "Una aplicación web educativa, interactiva con un algoritmo de aprendizaje automático KNN El proyecto utiliza datos abiertos del Laboratorio de Química y Física de Suelos de AGROSAVIA para abordar el caso de uso real de diagnóstico y clasificación de la fertilidad del suelo en tres categorías: baja, media y alta.",
+        "imagen": "images/suelos.png",
+        "url": "https://mipstr-9etfvoafm54yhpj4nwduyp.streamlit.app/",
+        "label_btn": "Explorar"
     }
 ]
 
