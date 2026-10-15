@@ -412,7 +412,16 @@ proyectos = [
         "imagen": "images/suelos.png",
         "url": "https://mipstr-9etfvoafm54yhpj4nwduyp.streamlit.app/",
         "label_btn": "Explorar"
-    }
+    },
+    {
+        "categoria": "Machine Learning",
+        "fecha": "Octubre, 2026",
+        "titulo": "Modelo de consumo energético",
+        "descripcion": "Aplicación interactiva para auditar, probar y analizar en tiempo real un modelo de Machine Learning (serializado con joblib) que predice el consumo eléctrico (kWh) según la temperatura, ocupación y humedad.",
+        "imagen": "images/consumo_energetico.jpeg",
+        "url": "https://mipstr-xzl8jbqsmmqgd3rcndrpet.streamlit.app/",
+        "label_btn": "Explorar"
+    }    
 ]
 
 
