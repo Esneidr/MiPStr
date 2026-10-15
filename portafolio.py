@@ -426,9 +426,56 @@ proyectos = [
 
 
 # =========================================================
-# RENDERIZADO DE LAS TARJETAS
+# PAGINACIÓN Y RENDERIZADO DE LAS TARJETAS
 # =========================================================
-for proj in proyectos:
+noticias_por_pagina = 5
+total_proyectos = len(proyectos)
+total_paginas = (total_proyectos + noticias_por_pagina - 1) // noticias_por_pagina
+
+if "pagina_actual" not in st.session_state:
+    st.session_state.pagina_actual = 1
+
+# Mantener la página dentro del rango disponible
+st.session_state.pagina_actual = max(
+    1, min(st.session_state.pagina_actual, total_paginas)
+)
+
+inicio = (st.session_state.pagina_actual - 1) * noticias_por_pagina
+fin = inicio + noticias_por_pagina
+proyectos_pagina = proyectos[inicio:fin]
+
+col_anterior, col_pagina, col_siguiente = st.columns([1, 2, 1])
+
+with col_anterior:
+    if st.button(
+        "⬅️ Anterior",
+        disabled=st.session_state.pagina_actual == 1,
+        use_container_width=True,
+        key="pagina_anterior"
+    ):
+        st.session_state.pagina_actual -= 1
+        st.rerun()
+
+with col_pagina:
+    st.markdown(
+        f"<p style='text-align:center; padding-top:8px;'>"
+        f"Página <b>{st.session_state.pagina_actual}</b> de <b>{total_paginas}</b>"
+        f" · Mostrando {len(proyectos_pagina)} de {total_proyectos} aplicaciones"
+        f"</p>",
+        unsafe_allow_html=True
+    )
+
+with col_siguiente:
+    if st.button(
+        "Siguiente ➡️",
+        disabled=st.session_state.pagina_actual == total_paginas,
+        use_container_width=True,
+        key="pagina_siguiente"
+    ):
+        st.session_state.pagina_actual += 1
+        st.rerun()
+
+for proj in proyectos_pagina:
     with st.container(border=True):
         col_img, col_info = st.columns([1, 2.5], gap="medium")
 
