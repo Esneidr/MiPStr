@@ -310,6 +310,7 @@ st.markdown("""
 
 # Franja de métricas: el contenido se completa cuando ya existe la lista proyectos
 metricas_placeholder = st.empty()
+url_ia = "https://sites.google.com/view/aplicacionesdeia/inicio"
 st.subheader("🔗 En el siguiente enlace puedes encontrar páginas y ejercicios prácticos")
 st.markdown(f"[Acceder a Páginas y Ejercicios Prácticos]({url_ia})")
 st.divider()
