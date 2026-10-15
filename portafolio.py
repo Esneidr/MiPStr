@@ -308,29 +308,8 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Franja de métricas (visual, sin alterar contenido)
-st.markdown("""
-<div class="metric-strip">
-    <div class="metric-card">
-        <p class="metric-value">11</p>
-        <p class="metric-label">Aplicaciones publicadas</p>
-    </div>
-    <div class="metric-card">
-        <p class="metric-value">ML</p>
-        <p class="metric-label">Categoría principal</p>
-    </div>
-    <div class="metric-card">
-        <p class="metric-value">2026</p>
-        <p class="metric-label">Periodo académico</p>
-    </div>
-    <div class="metric-card">
-        <p class="metric-value">Streamlit</p>
-        <p class="metric-label">Tecnología base</p>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-url_ia = "https://sites.google.com/view/aplicacionesdeia/inicio"
+# Franja de métricas: el contenido se completa cuando ya existe la lista proyectos
+metricas_placeholder = st.empty()
 st.subheader("🔗 En el siguiente enlace puedes encontrar páginas y ejercicios prácticos")
 st.markdown(f"[Acceder a Páginas y Ejercicios Prácticos]({url_ia})")
 st.divider()
@@ -449,6 +428,28 @@ proyectos = [
         "label_btn": "Explorar"
     }    
 ]
+
+# Actualizar el contador con la cantidad real de aplicaciones registradas
+metricas_placeholder.markdown(f"""
+<div class="metric-strip">
+    <div class="metric-card">
+        <p class="metric-value">{len(proyectos)}</p>
+        <p class="metric-label">Aplicaciones publicadas</p>
+    </div>
+    <div class="metric-card">
+        <p class="metric-value">ML</p>
+        <p class="metric-label">Categoría principal</p>
+    </div>
+    <div class="metric-card">
+        <p class="metric-value">2026</p>
+        <p class="metric-label">Periodo académico</p>
+    </div>
+    <div class="metric-card">
+        <p class="metric-value">Streamlit</p>
+        <p class="metric-label">Tecnología base</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 
 # =========================================================
