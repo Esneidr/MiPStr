@@ -220,6 +220,32 @@ st.markdown("""
     }
     .footer strong { color: #ffffff; }
     .footer .accent { color: #6a9bff; }
+
+    /* ---------- PAGINACIÓN ---------- */
+    div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button {
+        border: 1px solid #1a73e8;
+        border-radius: 12px;
+        min-height: 44px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(26,115,232,0.12);
+    }
+    div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button:not(:disabled) {
+        background: linear-gradient(135deg, #1a73e8 0%, #6a4cff 100%);
+        color: #ffffff;
+    }
+    div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button:not(:disabled):hover {
+        border-color: #6a4cff;
+        box-shadow: 0 7px 18px rgba(26,115,232,0.28);
+        transform: translateY(-2px);
+    }
+    div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button:disabled {
+        background: #e9edf5;
+        color: #8a94a6;
+        border-color: #dce2ec;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -426,7 +452,7 @@ proyectos = [
 
 
 # =========================================================
-# PAGINACIÓN Y RENDERIZADO DE LAS TARJETAS
+# RENDERIZADO DE LAS TARJETAS
 # =========================================================
 noticias_por_pagina = 5
 total_proyectos = len(proyectos)
@@ -443,37 +469,6 @@ st.session_state.pagina_actual = max(
 inicio = (st.session_state.pagina_actual - 1) * noticias_por_pagina
 fin = inicio + noticias_por_pagina
 proyectos_pagina = proyectos[inicio:fin]
-
-col_anterior, col_pagina, col_siguiente = st.columns([1, 2, 1])
-
-with col_anterior:
-    if st.button(
-        "⬅️ Anterior",
-        disabled=st.session_state.pagina_actual == 1,
-        use_container_width=True,
-        key="pagina_anterior"
-    ):
-        st.session_state.pagina_actual -= 1
-        st.rerun()
-
-with col_pagina:
-    st.markdown(
-        f"<p style='text-align:center; padding-top:8px;'>"
-        f"Página <b>{st.session_state.pagina_actual}</b> de <b>{total_paginas}</b>"
-        f" · Mostrando {len(proyectos_pagina)} de {total_proyectos} aplicaciones"
-        f"</p>",
-        unsafe_allow_html=True
-    )
-
-with col_siguiente:
-    if st.button(
-        "Siguiente ➡️",
-        disabled=st.session_state.pagina_actual == total_paginas,
-        use_container_width=True,
-        key="pagina_siguiente"
-    ):
-        st.session_state.pagina_actual += 1
-        st.rerun()
 
 for proj in proyectos_pagina:
     with st.container(border=True):
@@ -497,6 +492,56 @@ for proj in proyectos_pagina:
                 unsafe_allow_html=True
             )
             st.link_button(proj["label_btn"], proj["url"])
+
+
+# =========================================================
+# PAGINACIÓN (ANTES DEL FOOTER)
+# =========================================================
+st.divider()
+
+col_anterior, col_pagina, col_siguiente = st.columns([1, 2, 1], gap="medium")
+
+with col_anterior:
+    if st.button(
+        "⬅️ Anterior",
+        disabled=st.session_state.pagina_actual == 1,
+        use_container_width=True,
+        key="pagina_anterior"
+    ):
+        st.session_state.pagina_actual -= 1
+        st.rerun()
+
+with col_pagina:
+    st.markdown(
+        f"""
+        <div style="
+            text-align:center;
+            padding:10px 12px;
+            border:1px solid #e0e7f2;
+            border-radius:12px;
+            background:#ffffff;
+            box-shadow:0 4px 12px rgba(0,0,0,0.04);
+            color:#3c4043;
+            font-size:14px;">
+            Página <strong style="color:#1a73e8;">{st.session_state.pagina_actual}</strong>
+            de <strong>{total_paginas}</strong>
+            <div style="font-size:12px; color:#6b7280; margin-top:3px;">
+                Mostrando {len(proyectos_pagina)} de {total_proyectos} aplicaciones
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+with col_siguiente:
+    if st.button(
+        "Siguiente ➡️",
+        disabled=st.session_state.pagina_actual == total_paginas,
+        use_container_width=True,
+        key="pagina_siguiente"
+    ):
+        st.session_state.pagina_actual += 1
+        st.rerun()
 
 
 # =========================================================
