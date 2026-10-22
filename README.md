@@ -1,6 +1,6 @@
-# ¿Lloverá mañana? (KNN) — Módulo 12
+# Estimador de valor de vivienda — Módulo 12
 
-KNN con los días simulados del Módulo 8, desplegado como API con FastAPI en Vercel.
+Regresión lineal (Módulo 6) entrenada con descenso de gradiente y desplegada como API con FastAPI.
 
 ## Enlaces
 - App: https://TU-PROYECTO.vercel.app
@@ -9,10 +9,10 @@ KNN con los días simulados del Módulo 8, desplegado como API con FastAPI en Ve
 ## Archivos
 | Archivo | Rol |
 |---|---|
-| `modelo.json` | μ, σ, k y los días de entrenamiento con su etiqueta |
-| `main.py` | API: busca los k vecinos y los pone a votar en `/predict` |
-| `index.html` | Página con los deslizadores y la tabla de vecinos |
+| `modelo.json` | Pesos, sesgo, medias y desviaciones del modelo entrenado |
+| `main.py` | API: carga el modelo y responde en `/predict` |
+| `index.html` | Página con el formulario |
 | `requirements.txt` | Dependencias del servidor |
 
 ## Reflexión
-(Escribe aquí tus respuestas a los retos del notebook)
+(Escribe aquí tus respuestas a las preguntas del final del notebook)
