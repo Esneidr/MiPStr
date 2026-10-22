@@ -427,7 +427,43 @@ proyectos = [
         "imagen": "images/consumo_energetico.jpeg",
         "url": "https://mipstr-xzl8jbqsmmqgd3rcndrpet.streamlit.app/",
         "label_btn": "Explorar"
-    }    
+    },
+    {
+        "categoria": "Machine Learning",
+        "fecha": "Octubre, 2026",
+        "titulo": "Eficiencia y paralelismo en Python",
+        "descripcion": "Su propósito principal es permitir experimentar en vivo con conceptos de concurrencia, paralelismo, vectorización y aceleración algorítmica utilizando un entorno visual e intuitivo, comparando el rendimiento de diferentes enfoques en tiempo real",
+        "imagen": "images/paralelismo.png",
+        "url": "https://mipstr-yev6jqk9sbczsdm7ddhoas.streamlit.app/",
+        "label_btn": "Explorar"
+    },
+    {
+        "categoria": "Machine Learning",
+        "fecha": "Octubre, 2026",
+        "titulo": "¿Lloverá mañana?",
+        "descripcion": "Regresión logística (Módulo 8) desplegada como API con FastAPI en Vercel. Permite predecir si lloverá al día siguiente",
+        "imagen": "images/app_lluvia.png",
+        "url": "https://predecir-lluvia.vercel.app/",
+        "label_btn": "Explorar"
+    },
+    {
+        "categoria": "Machine Learning",
+        "fecha": "Octubre, 2026",
+        "titulo": "¿Lloverá mañana? (KNN)",
+        "descripcion": "KNN con los días simulados del Módulo 8, desplegado como API con FastAPI en Vercel",
+        "imagen": "images/app_lluvia_knn.png",
+        "url": "https://precedir-lluvia-knn.vercel.app/",
+        "label_btn": "Explorar"
+    },
+    {
+        "categoria": "Machine Learning",
+        "fecha": "Octubre, 2026",
+        "titulo": "Estimador de valor de vivienda",
+        "descripcion": "Regresión lineal (Módulo 6) entrenada con descenso de gradiente y desplegada como API con FastAPI en Vercel. Permite estimar el valor de una vivienda según sus características",
+        "imagen": "images/app_vivienda.png",
+        "url": "https://estimador-valor-vivienda.vercel.app/",
+        "label_btn": "Explorar"
+    }   
 ]
 
 # Actualizar el contador con la cantidad real de aplicaciones registradas
