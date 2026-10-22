@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>¿Lloverá mañana?</title>
+  <style>
+    :root { --fondo:#f2f5f9; --tarjeta:#fff; --texto:#1b2633; --suave:#5d6a79; --acento:#2f5fa7; --borde:#d7dee7;
+            --lluvia:#2f5fa7; --seco:#c98a12; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--fondo); color:var(--texto); }
+    main { max-width: 640px; margin: 0 auto; padding: 32px 16px; }
+    h1 { margin: 0 0 4px; font-size: 1.6rem; }
+    .sub { color: var(--suave); margin: 0 0 24px; }
+    .tarjeta { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px; padding: 24px; }
+    .campo { margin-bottom: 22px; }
+    .fila { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+    label { font-weight: 600; }
+    .valor { font-variant-numeric: tabular-nums; color: var(--acento); font-weight: 700; }
+    input[type=range] { width: 100%; accent-color: var(--acento); }
+    button { width: 100%; padding: 12px; font-size: 1rem; font-weight: 600; color: #fff;
+             background: var(--acento); border: 0; border-radius: 8px; cursor: pointer; }
+    button:disabled { opacity: .6; }
+    #resultado { margin-top: 22px; display: none; }
+    #decision { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+    .barra { position: relative; height: 18px; border-radius: 9px; background: #e4e9f0; overflow: visible; }
+    .relleno { height: 100%; border-radius: 9px; width: 0; transition: width .4s; }
+    .marca { position: absolute; top: -6px; width: 2px; height: 30px; background: var(--texto); }
+    .marca span { position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
+                  font-size: .75rem; color: var(--suave); white-space: nowrap; }
+    #detalle { margin-top: 30px; color: var(--suave); font-size: .9rem; }
+    footer { margin-top: 20px; font-size: .85rem; color: var(--suave); }
+    a { color: var(--acento); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>🌦️ ¿Lloverá mañana?</h1>
+  <p class="sub">Regresión logística · probabilidad de lluvia según el clima del día</p>
+
+  <form id="formulario" class="tarjeta">
+    <div class="campo">
+      <div class="fila"><label for="temperatura">Temperatura</label><span class="valor" id="v-temperatura"></span></div>
+      <input id="temperatura" type="range" min="5" max="40" step="0.5" value="24" data-unidad=" °C">
+    </div>
+    <div class="campo">
+      <div class="fila"><label for="humedad">Humedad</label><span class="valor" id="v-humedad"></span></div>
+      <input id="humedad" type="range" min="10" max="100" step="1" value="85" data-unidad=" %">
+    </div>
+    <div class="campo">
+      <div class="fila"><label for="viento">Viento</label><span class="valor" id="v-viento"></span></div>
+      <input id="viento" type="range" min="0" max="40" step="1" value="12" data-unidad=" km/h">
+    </div>
+
+    <button id="boton" type="submit">Calcular probabilidad</button>
+
+    <div id="resultado">
+      <div id="decision"></div>
+      <div class="barra">
+        <div class="relleno" id="relleno"></div>
+        <div class="marca" id="marca"><span id="texto-umbral"></span></div>
+      </div>
+      <div id="detalle"></div>
+    </div>
+  </form>
+
+  <footer>
+    <span id="info-modelo">Cargando información del modelo…</span> ·
+    <a href="/docs">Ver la API (/docs)</a>
+  </footer>
+</main>
+
+<script>
+  const campos = ["temperatura", "humedad", "viento"];
+
+  // Mostrar el valor de cada deslizador mientras se mueve
+  for (const c of campos) {
+    const control = document.getElementById(c);
+    const mostrar = () => document.getElementById("v-" + c).textContent = control.value + control.dataset.unidad;
+    control.addEventListener("input", mostrar);
+    mostrar();
+  }
+
+  // Métricas del modelo desde la API
+  fetch("/modelo").then(r => r.json()).then(m => {
+    const k = m.metricas_prueba;
+    document.getElementById("info-modelo").textContent =
+      `Accuracy ${(k.accuracy * 100).toFixed(0)} % · Precisión ${(k.precision * 100).toFixed(0)} % · Recall ${(k.recall * 100).toFixed(0)} %`;
+  });
+
+  document.getElementById("formulario").addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    const boton = document.getElementById("boton");
+    boton.disabled = true;
+
+    // 1. Reunir los datos
+    const datos = {};
+    for (const c of campos) datos[c] = Number(document.getElementById(c).value);
+
+    // 2. Enviarlos a la API
+    try {
+      const respuesta = await fetch("/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos),
+      });
+      if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
+      const r = await respuesta.json();
+
+      // 3. Mostrar el resultado
+      const pct = (r.probabilidad * 100).toFixed(1);
+      const color = r.clase === 1 ? "var(--lluvia)" : "var(--seco)";
+      document.getElementById("decision").textContent = (r.clase === 1 ? "☔ " : "☀️ ") + r.decision;
+      document.getElementById("decision").style.color = color;
+      document.getElementById("relleno").style.width = pct + "%";
+      document.getElementById("relleno").style.background = color;
+      document.getElementById("marca").style.left = (r.umbral * 100) + "%";
+      document.getElementById("texto-umbral").textContent = "umbral " + r.umbral;
+      document.getElementById("detalle").textContent =
+        `Probabilidad de lluvia: ${pct} % · ${r.clase === 1 ? "supera" : "no alcanza"} el umbral de ${r.umbral}`;
+    } catch (e) {
+      document.getElementById("decision").textContent = "No se pudo calcular";
+      document.getElementById("detalle").textContent = e.message;
+    }
+    document.getElementById("resultado").style.display = "block";
+    boton.disabled = false;
+  });
+</script>
+</body>
+</html>
