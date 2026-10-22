@@ -1,10 +1,10 @@
 """
-Módulo 12 — API del modelo de regresión logística (¿lloverá mañana?)
+Módulo 12 — API del modelo KNN (¿lloverá mañana?)
 
 Rutas:
     GET  /          → página con el formulario
     GET  /modelo    → información y métricas del modelo
-    POST /predict   → probabilidad de lluvia y decisión
+    POST /predict   → votación de los k vecinos más cercanos
     GET  /docs      → documentación automática (la genera FastAPI)
 """
 import json
@@ -19,8 +19,8 @@ CARPETA = Path(__file__).parent
 MODELO = json.loads((CARPETA / "modelo.json").read_text(encoding="utf-8"))
 
 app = FastAPI(
-    title="¿Lloverá mañana?",
-    description="Regresión logística del Módulo 8, desplegada en el Módulo 12.",
+    title="¿Lloverá mañana? (KNN)",
+    description="KNN con los días del Módulo 8, desplegado en el Módulo 12.",
     version="1.0",
 )
 
@@ -31,20 +31,19 @@ class Dia(BaseModel):
     viento: float = Field(..., ge=0, le=150, description="Velocidad del viento (km/h)", examples=[12])
 
 
-def sigmoide(z: float) -> float:
-    if z >= 0:
-        return 1 / (1 + math.exp(-z))
-    e = math.exp(z)
-    return e / (1 + e)
+def a_unidades(punto):
+    # De vuelta a °C, % y km/h:  x = z · σ + μ
+    return {v: round(z * s + mu, 1)
+            for v, z, mu, s in zip(MODELO["variables"], punto, MODELO["media"], MODELO["desviacion"])}
 
 
 def clasificar(datos: dict):
-    # z = b + Σ w_i · x_i   →   p = σ(z)   →   clase = p ≥ umbral
-    z = MODELO["sesgo"]
-    for nombre, w in zip(MODELO["variables"], MODELO["pesos"]):
-        z += w * datos[nombre]
-    p = sigmoide(z)
-    return p, int(p >= MODELO["umbral"])
+    z = [(datos[v] - mu) / s for v, mu, s in zip(MODELO["variables"], MODELO["media"], MODELO["desviacion"])]
+    distancias = sorted((math.dist(z, punto), j) for j, punto in enumerate(MODELO["puntos"]))
+    vecinos = distancias[:MODELO["k"]]
+    votos = sum(MODELO["etiquetas"][j] for _, j in vecinos)
+    p = votos / MODELO["k"]
+    return p, int(p >= 0.5), vecinos
 
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
@@ -57,17 +56,22 @@ def info_modelo():
     return {
         "nombre": MODELO["nombre"],
         "variables": MODELO["variables"],
-        "umbral": MODELO["umbral"],
+        "k": MODELO["k"],
+        "dias_guardados": len(MODELO["puntos"]),
         "metricas_prueba": MODELO["metricas_prueba"],
     }
 
 
 @app.post("/predict")
 def predict(dia: Dia):
-    p, clase = clasificar(dia.model_dump())
+    p, clase, vecinos = clasificar(dia.model_dump())
     return {
         "probabilidad": round(p, 4),
         "clase": clase,
         "decision": MODELO["clases"][str(clase)],
-        "umbral": MODELO["umbral"],
+        "k": MODELO["k"],
+        "vecinos": [
+            {**a_unidades(MODELO["puntos"][j]), "llovio": MODELO["etiquetas"][j], "distancia": round(d, 3)}
+            for d, j in vecinos
+        ],
     }

@@ -1,6 +1,6 @@
-# ¿Lloverá mañana? — Módulo 12
+# ¿Lloverá mañana? (KNN) — Módulo 12
 
-Regresión logística (Módulo 8) desplegada como API con FastAPI en Vercel.
+KNN con los días simulados del Módulo 8, desplegado como API con FastAPI en Vercel.
 
 ## Enlaces
 - App: https://TU-PROYECTO.vercel.app
@@ -9,9 +9,9 @@ Regresión logística (Módulo 8) desplegada como API con FastAPI en Vercel.
 ## Archivos
 | Archivo | Rol |
 |---|---|
-| `modelo.json` | Pesos, sesgo, umbral y métricas del modelo |
-| `main.py` | API: calcula la probabilidad en `/predict` |
-| `index.html` | Página con los deslizadores |
+| `modelo.json` | μ, σ, k y los días de entrenamiento con su etiqueta |
+| `main.py` | API: busca los k vecinos y los pone a votar en `/predict` |
+| `index.html` | Página con los deslizadores y la tabla de vecinos |
 | `requirements.txt` | Dependencias del servidor |
 
 ## Reflexión

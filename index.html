@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>¿Lloverá mañana?</title>
+  <title>¿Lloverá mañana? KNN</title>
   <style>
-    :root { --fondo:#f2f5f9; --tarjeta:#fff; --texto:#1b2633; --suave:#5d6a79; --acento:#2f5fa7; --borde:#d7dee7;
+    :root { --fondo:#f2f5f4; --tarjeta:#fff; --texto:#1b2a2a; --suave:#5d6b6b; --acento:#227064; --borde:#d6dfdd;
             --lluvia:#2f5fa7; --seco:#c98a12; }
     * { box-sizing: border-box; }
     body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--fondo); color:var(--texto); }
@@ -22,21 +22,22 @@
              background: var(--acento); border: 0; border-radius: 8px; cursor: pointer; }
     button:disabled { opacity: .6; }
     #resultado { margin-top: 22px; display: none; }
-    #decision { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
-    .barra { position: relative; height: 18px; border-radius: 9px; background: #e4e9f0; overflow: visible; }
-    .relleno { height: 100%; border-radius: 9px; width: 0; transition: width .4s; }
-    .marca { position: absolute; top: -6px; width: 2px; height: 30px; background: var(--texto); }
-    .marca span { position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
-                  font-size: .75rem; color: var(--suave); white-space: nowrap; }
-    #detalle { margin-top: 30px; color: var(--suave); font-size: .9rem; }
+    #decision { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
+    #votos { font-size: 1.6rem; letter-spacing: 4px; margin: 4px 0 6px; }
+    #detalle { color: var(--suave); font-size: .9rem; margin-bottom: 16px; }
+    .tabla { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
+    th, td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--borde); }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--suave); font-weight: 600; }
     footer { margin-top: 20px; font-size: .85rem; color: var(--suave); }
     a { color: var(--acento); }
   </style>
 </head>
 <body>
 <main>
-  <h1>🌦️ ¿Lloverá mañana?</h1>
-  <p class="sub">Regresión logística · probabilidad de lluvia según el clima del día</p>
+  <h1>🌦️ ¿Lloverá mañana? <small style="font-weight:400;color:var(--suave)">KNN</small></h1>
+  <p class="sub">Busca los días más parecidos en el historial y les pide que voten</p>
 
   <form id="formulario" class="tarjeta">
     <div class="campo">
@@ -52,15 +53,18 @@
       <input id="viento" type="range" min="0" max="40" step="1" value="12" data-unidad=" km/h">
     </div>
 
-    <button id="boton" type="submit">Calcular probabilidad</button>
+    <button id="boton" type="submit">Preguntar a los vecinos</button>
 
     <div id="resultado">
       <div id="decision"></div>
-      <div class="barra">
-        <div class="relleno" id="relleno"></div>
-        <div class="marca" id="marca"><span id="texto-umbral"></span></div>
-      </div>
+      <div id="votos"></div>
       <div id="detalle"></div>
+      <div class="tabla">
+        <table>
+          <thead><tr><th>Vecino</th><th>Temp. (°C)</th><th>Humedad (%)</th><th>Viento (km/h)</th><th>¿Llovió?</th><th>Distancia</th></tr></thead>
+          <tbody id="filas"></tbody>
+        </table>
+      </div>
     </div>
   </form>
 
@@ -73,7 +77,6 @@
 <script>
   const campos = ["temperatura", "humedad", "viento"];
 
-  // Mostrar el valor de cada deslizador mientras se mueve
   for (const c of campos) {
     const control = document.getElementById(c);
     const mostrar = () => document.getElementById("v-" + c).textContent = control.value + control.dataset.unidad;
@@ -81,11 +84,10 @@
     mostrar();
   }
 
-  // Métricas del modelo desde la API
   fetch("/modelo").then(r => r.json()).then(m => {
     const k = m.metricas_prueba;
     document.getElementById("info-modelo").textContent =
-      `Accuracy ${(k.accuracy * 100).toFixed(0)} % · Precisión ${(k.precision * 100).toFixed(0)} % · Recall ${(k.recall * 100).toFixed(0)} %`;
+      `k = ${m.k} · ${m.dias_guardados} días guardados · Accuracy ${(k.accuracy * 100).toFixed(0)} % · Recall ${(k.recall * 100).toFixed(0)} %`;
   });
 
   document.getElementById("formulario").addEventListener("submit", async (evento) => {
@@ -108,16 +110,16 @@
       const r = await respuesta.json();
 
       // 3. Mostrar el resultado
-      const pct = (r.probabilidad * 100).toFixed(1);
-      const color = r.clase === 1 ? "var(--lluvia)" : "var(--seco)";
-      document.getElementById("decision").textContent = (r.clase === 1 ? "☔ " : "☀️ ") + r.decision;
-      document.getElementById("decision").style.color = color;
-      document.getElementById("relleno").style.width = pct + "%";
-      document.getElementById("relleno").style.background = color;
-      document.getElementById("marca").style.left = (r.umbral * 100) + "%";
-      document.getElementById("texto-umbral").textContent = "umbral " + r.umbral;
+      const lluvias = r.vecinos.filter(v => v.llovio === 1).length;
+      const decision = document.getElementById("decision");
+      decision.textContent = (r.clase === 1 ? "☔ " : "☀️ ") + r.decision;
+      decision.style.color = r.clase === 1 ? "var(--lluvia)" : "var(--seco)";
+      document.getElementById("votos").textContent = r.vecinos.map(v => v.llovio === 1 ? "☔" : "☀️").join("");
       document.getElementById("detalle").textContent =
-        `Probabilidad de lluvia: ${pct} % · ${r.clase === 1 ? "supera" : "no alcanza"} el umbral de ${r.umbral}`;
+        `${lluvias} de ${r.k} días parecidos tuvieron lluvia · probabilidad ${(r.probabilidad * 100).toFixed(0)} %`;
+      document.getElementById("filas").innerHTML = r.vecinos.map((v, i) =>
+        `<tr><td>${i + 1}</td><td>${v.temperatura.toFixed(1)}</td><td>${v.humedad.toFixed(1)}</td><td>${v.viento.toFixed(1)}</td>` +
+        `<td>${v.llovio === 1 ? "☔ Sí" : "☀️ No"}</td><td>${v.distancia}</td></tr>`).join("");
     } catch (e) {
       document.getElementById("decision").textContent = "No se pudo calcular";
       document.getElementById("detalle").textContent = e.message;
